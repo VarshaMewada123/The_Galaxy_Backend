@@ -1,0 +1,62 @@
+const Offer = require("../../models/dining/offer.model");
+const { AppError } = require("../../middleware/errorHandler");
+
+class OfferService {
+  /* ===============================
+     CREATE OFFER
+  =============================== */
+  static async create(data) {
+    return Offer.create(data);
+  }
+
+  /* ===============================
+     GET ACTIVE OFFERS
+  =============================== */
+  static async getActiveOffers() {
+    const now = new Date();
+
+    return Offer.find({
+      isActive: true,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+  }
+
+  /* ===============================
+     GET ALL OFFERS (ADMIN)
+  =============================== */
+  static async getAll() {
+    return Offer.find().sort({ createdAt: -1 });
+  }
+
+  /* ===============================
+     UPDATE OFFER
+  =============================== */
+  static async update(id, data) {
+    const offer = await Offer.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!offer) {
+      throw new AppError("Offer not found", 404);
+    }
+
+    return offer;
+  }
+
+  /* ===============================
+     DELETE OFFER
+  =============================== */
+  static async delete(id) {
+    const offer = await Offer.findByIdAndDelete(id);
+
+    if (!offer) {
+      throw new AppError("Offer not found", 404);
+    }
+
+    return offer;
+  }
+}
+
+module.exports = OfferService;
