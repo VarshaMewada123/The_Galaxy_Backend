@@ -6,5 +6,4 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.use("/dining/roster", require("./dailyRoster.routes"));
 module.exports = router;
