@@ -16,7 +16,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const fileRoutes = require("./routes/fileRoutes");
 const adminDiningRoutes = require("./routes/adminDining.routes"); // ✅ FIXED
-
+const publicMenuRoutes = require("./routes/public/menu.routes");
 const app = express();
 
 app.set("trust proxy", 1);
@@ -79,6 +79,7 @@ app.use(
   })
 );
 
+
 /* ===============================
    ROUTES
 ================================= */
@@ -89,7 +90,7 @@ app.use("/api/v1/files", fileRoutes);
 
 // ✅ FIXED (use app, not router)
 app.use("/api/v1/admin/dining", adminDiningRoutes);
-
+app.use("/api/v1/menu", publicMenuRoutes);
 /* ===============================
    ERROR HANDLING
 ================================= */
