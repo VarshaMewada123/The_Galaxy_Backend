@@ -15,15 +15,12 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const fileRoutes = require("./routes/fileRoutes");
-const adminDiningRoutes = require("./routes/adminDining.routes"); // ✅ FIXED
+const adminDiningRoutes = require("./routes/adminDining.routes");
 const publicMenuRoutes = require("./routes/public/menu.routes");
 const app = express();
 
 app.set("trust proxy", 1);
 
-/* ===============================
-   SECURITY MIDDLEWARES
-================================= */
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xss());
@@ -39,9 +36,6 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-/* ===============================
-   RATE LIMITING
-================================= */
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -55,9 +49,6 @@ const apiLimiter = rateLimit({
 
 app.use("/api", apiLimiter);
 
-/* ===============================
-   CORS CONFIG
-================================= */
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3002",
@@ -76,26 +67,16 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-  })
+  }),
 );
 
-
-/* ===============================
-   ROUTES
-================================= */
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/rooms", roomRoutes);
 app.use("/api/v1/files", fileRoutes);
-
-// ✅ FIXED (use app, not router)
 app.use("/api/v1/admin/dining", adminDiningRoutes);
 app.use("/api/v1/menu", publicMenuRoutes);
-/* ===============================
-   ERROR HANDLING
-================================= */
 app.use(notFound);
 app.use(errorHandler);
 
 module.exports = app;
-

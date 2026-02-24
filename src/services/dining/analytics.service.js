@@ -1,9 +1,6 @@
 const Order = require("../../models/dining/order.model");
 
 class AnalyticsService {
-  /* ===============================
-     DASHBOARD SUMMARY
-  =============================== */
   static async getSummary() {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
@@ -17,7 +14,7 @@ class AnalyticsService {
 
     const totalRevenueToday = ordersToday.reduce(
       (sum, order) => sum + order.grandTotal,
-      0
+      0,
     );
 
     const totalOrdersToday = ordersToday.length;
@@ -38,9 +35,6 @@ class AnalyticsService {
     };
   }
 
-  /* ===============================
-     TOP ORDERED ITEMS
-  =============================== */
   static async getTopItems(limit = 5) {
     return Order.aggregate([
       { $unwind: "$items" },
@@ -56,85 +50,84 @@ class AnalyticsService {
     ]);
   }
   static async getRevenueByDateRange(start, end) {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
+    const startDate = new Date(start);
+    const endDate = new Date(end);
 
-  return Order.aggregate([
-    {
-      $match: {
-        createdAt: { $gte: startDate, $lte: endDate },
+    return Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
       },
-    },
-    {
-      $group: {
-        _id: null,
-        totalRevenue: { $sum: "$grandTotal" },
-        totalOrders: { $sum: 1 },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$grandTotal" },
+          totalOrders: { $sum: 1 },
+        },
       },
-    },
-  ]);
-}
-static async getRevenueByCategory() {
-  return Order.aggregate([
-    { $unwind: "$items" },
-    {
-      $lookup: {
-        from: "menuitems",
-        localField: "items.menuItemId",
-        foreignField: "_id",
-        as: "menuData",
+    ]);
+  }
+  static async getRevenueByCategory() {
+    return Order.aggregate([
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "menuitems",
+          localField: "items.menuItemId",
+          foreignField: "_id",
+          as: "menuData",
+        },
       },
-    },
-    { $unwind: "$menuData" },
-    {
-      $lookup: {
-        from: "diningcategories",
-        localField: "menuData.category",
-        foreignField: "_id",
-        as: "categoryData",
+      { $unwind: "$menuData" },
+      {
+        $lookup: {
+          from: "diningcategories",
+          localField: "menuData.category",
+          foreignField: "_id",
+          as: "categoryData",
+        },
       },
-    },
-    { $unwind: "$categoryData" },
-    {
-      $group: {
-        _id: "$categoryData.name",
-        totalRevenue: {
-          $sum: {
-            $multiply: ["$items.quantity", "$items.priceSnapshot"],
+      { $unwind: "$categoryData" },
+      {
+        $group: {
+          _id: "$categoryData.name",
+          totalRevenue: {
+            $sum: {
+              $multiply: ["$items.quantity", "$items.priceSnapshot"],
+            },
           },
         },
       },
-    },
-    { $sort: { totalRevenue: -1 } },
-  ]);
-}
-static async getMonthlyRevenue() {
-  return Order.aggregate([
-    {
-      $group: {
-        _id: {
-          year: { $year: "$createdAt" },
-          month: { $month: "$createdAt" },
+      { $sort: { totalRevenue: -1 } },
+    ]);
+  }
+  static async getMonthlyRevenue() {
+    return Order.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          totalRevenue: { $sum: "$grandTotal" },
         },
-        totalRevenue: { $sum: "$grandTotal" },
       },
-    },
-    { $sort: { "_id.year": 1, "_id.month": 1 } },
-  ]);
-}
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+  }
 
-static async getHourlySales() {
-  return Order.aggregate([
-    {
-      $group: {
-        _id: { $hour: "$createdAt" },
-        totalOrders: { $sum: 1 },
+  static async getHourlySales() {
+    return Order.aggregate([
+      {
+        $group: {
+          _id: { $hour: "$createdAt" },
+          totalOrders: { $sum: 1 },
+        },
       },
-    },
-    { $sort: { _id: 1 } },
-  ]);
-}
-
+      { $sort: { _id: 1 } },
+    ]);
+  }
 }
 
 module.exports = AnalyticsService;

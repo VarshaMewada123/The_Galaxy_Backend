@@ -2,16 +2,10 @@ const Offer = require("../../models/dining/offer.model");
 const { AppError } = require("../../middleware/errorHandler");
 
 class OfferService {
-  /* ===============================
-     CREATE OFFER
-  =============================== */
   static async create(data) {
     return Offer.create(data);
   }
 
-  /* ===============================
-     GET ACTIVE OFFERS
-  =============================== */
   static async getActiveOffers() {
     const now = new Date();
 
@@ -22,16 +16,10 @@ class OfferService {
     });
   }
 
-  /* ===============================
-     GET ALL OFFERS (ADMIN)
-  =============================== */
   static async getAll() {
     return Offer.find().sort({ createdAt: -1 });
   }
 
-  /* ===============================
-     UPDATE OFFER
-  =============================== */
   static async update(id, data) {
     const offer = await Offer.findByIdAndUpdate(id, data, {
       new: true,
@@ -45,9 +33,6 @@ class OfferService {
     return offer;
   }
 
-  /* ===============================
-     DELETE OFFER
-  =============================== */
   static async delete(id) {
     const offer = await Offer.findByIdAndDelete(id);
 

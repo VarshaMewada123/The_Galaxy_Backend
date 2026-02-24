@@ -3,7 +3,6 @@ const { AppError } = require("./errorHandler");
 
 const adminAuth = (req, res, next) => {
   try {
-   
     const token = req.cookies.adminAccessToken;
 
     if (!token) {
@@ -18,7 +17,7 @@ const adminAuth = (req, res, next) => {
 
     if (!["admin", "superadmin"].includes(decoded.role)) {
       return next(
-        new AppError("Access denied. Admin privileges required", 403)
+        new AppError("Access denied. Admin privileges required", 403),
       );
     }
 

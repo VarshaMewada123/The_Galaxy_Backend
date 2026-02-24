@@ -30,7 +30,7 @@ const paymentSchema = new mongoose.Schema(
 
     metadata: Object,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Payment", paymentSchema);

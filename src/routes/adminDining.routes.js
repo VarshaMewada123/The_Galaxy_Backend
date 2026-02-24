@@ -37,62 +37,48 @@ router.post(
   "/categories",
   createCategoryValidation,
   validate,
-  DiningCategoryController.create
+  DiningCategoryController.create,
 );
 
 router.patch(
   "/categories/:id",
   updateCategoryValidation,
   validate,
-  DiningCategoryController.update
+  DiningCategoryController.update,
 );
 
 router.get("/categories", DiningCategoryController.getAll);
 
 router.get("/categories/:id", DiningCategoryController.getById);
 
-router.delete(
-  "/categories/:id",
-  DiningCategoryController.delete
-);
+router.delete("/categories/:id", DiningCategoryController.delete);
 
 router.post("/dailyroster", controller.upsertRoster);
 
- 
 router.get("/getrosterbydate", controller.getRosterByDate);
- 
-router.get("/range", controller.getRosterRange);
 
- 
+router.get("/range", controller.getRosterRange);
 
 router.post(
   "/menu",
   upload.array("images", 5),
   createMenuValidation,
   validate,
-  MenuController.create
+  MenuController.create,
 );
-
 
 router.patch("/menu/bulk", MenuController.bulkUpdate);
 
+router.patch("/menu/:id/availability", MenuController.toggleAvailability);
 
-router.patch(
-  "/menu/:id/availability",
-  MenuController.toggleAvailability
-);
-
-router.patch(
-  "/menu/:id/restore",
-  MenuController.restore
-);
+router.patch("/menu/:id/restore", MenuController.restore);
 
 router.patch(
   "/menu/:id",
   upload.array("images", 5),
   updateMenuValidation,
   validate,
-  MenuController.update
+  MenuController.update,
 );
 
 router.get("/menu", MenuController.getAll);
@@ -100,36 +86,22 @@ router.get("/menu/:id", MenuController.getById);
 
 router.delete("/menu/:id", MenuController.delete);
 
-
-
 router.get("/offers", OfferController.getAll);
 
 router.get("/offers/active", OfferController.getActive);
 
-router.post(
-  "/offers",
-  createOfferValidation,
-  validate,
-  OfferController.create
-);
+router.post("/offers", createOfferValidation, validate, OfferController.create);
 
 router.patch(
   "/offers/:id",
   updateOfferValidation,
   validate,
-  OfferController.update
+  OfferController.update,
 );
 
 router.delete("/offers/:id", OfferController.delete);
 
-
-
-router.post(
-  "/orders",
-  createOrderValidation,
-  validate,
-  OrderController.create
-);
+router.post("/orders", createOrderValidation, validate, OrderController.create);
 
 router.get("/orders", OrderController.getAll);
 
@@ -143,46 +115,23 @@ router.get("/inventory", InventoryController.getAll);
 
 router.get("/inventory/low-stock", InventoryController.getLowStock);
 
-router.get(
-  "/inventory/:menuItemId",
-  InventoryController.getByMenuItem
-);
+router.get("/inventory/:menuItemId", InventoryController.getByMenuItem);
 
-router.patch(
-  "/inventory/:menuItemId/restock",
-  InventoryController.restock
-);
+router.patch("/inventory/:menuItemId/restock", InventoryController.restock);
 
-router.get(
-  "/analytics/summary",
-  AnalyticsController.getSummary
-);
+router.get("/analytics/summary", AnalyticsController.getSummary);
 
-router.get(
-  "/analytics/top-items",
-  AnalyticsController.getTopItems
-);
+router.get("/analytics/top-items", AnalyticsController.getTopItems);
 
-router.get(
-  "/analytics/revenue",
-  AnalyticsController.getRevenueByDateRange
-);
+router.get("/analytics/revenue", AnalyticsController.getRevenueByDateRange);
 
 router.get(
   "/analytics/revenue-by-category",
-  AnalyticsController.getRevenueByCategory
+  AnalyticsController.getRevenueByCategory,
 );
 
-router.get(
-  "/analytics/monthly-revenue",
-  AnalyticsController.getMonthlyRevenue
-);
+router.get("/analytics/monthly-revenue", AnalyticsController.getMonthlyRevenue);
 
-router.get(
-  "/analytics/hourly-sales",
-  AnalyticsController.getHourlySales
-);
+router.get("/analytics/hourly-sales", AnalyticsController.getHourlySales);
 
 module.exports = router;
-
-

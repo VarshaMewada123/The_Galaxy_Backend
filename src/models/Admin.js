@@ -39,7 +39,7 @@ const adminSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 adminSchema.pre("save", async function (next) {
@@ -53,7 +53,7 @@ adminSchema.pre("save", async function (next) {
 
     next();
   } catch (error) {
- console.log(error)
+    console.log(error);
   }
 });
 

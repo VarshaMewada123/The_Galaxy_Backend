@@ -5,27 +5,20 @@ const Offer = require("../../models/dining/offer.model");
 const { AppError } = require("../../middleware/errorHandler");
 
 class PricingService {
-
-  /* ===============================
-     MAIN PRICE CALCULATOR
-  =============================== */
   static async calculatePrice({
     menuItemId,
     variantId,
     addonIds = [],
     quantity = 1,
   }) {
-
     const menuItem = await MenuItem.findById(menuItemId);
 
     if (!menuItem || !menuItem.isAvailable) {
       throw new AppError("Menu item not available", 400);
     }
 
-    /* ---------- BASE PRICE ---------- */
     let basePrice = menuItem.basePrice;
 
-    /* ---------- VARIANT PRICE ---------- */
     let variantSnapshot = null;
 
     if (variantId) {
@@ -44,7 +37,6 @@ class PricingService {
       };
     }
 
-    /* ---------- ADDONS ---------- */
     let addonTotal = 0;
     let addonSnapshot = [];
 
@@ -67,7 +59,6 @@ class PricingService {
 
     let itemPrice = basePrice + addonTotal;
 
-    /* ---------- OFFERS ---------- */
     const now = new Date();
 
     const offers = await Offer.find({
@@ -90,7 +81,6 @@ class PricingService {
 
     if (discount > itemPrice) discount = itemPrice;
 
-    /* ---------- TAX ---------- */
     const tax = itemPrice * (menuItem.taxPercent / 100);
 
     const finalUnitPrice = itemPrice - discount + tax;

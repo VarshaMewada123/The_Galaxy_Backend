@@ -30,7 +30,7 @@ const menuVariantSchema = new mongoose.Schema(
       default: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("MenuVariant", menuVariantSchema);

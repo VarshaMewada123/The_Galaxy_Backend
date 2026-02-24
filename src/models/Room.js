@@ -45,7 +45,7 @@ const roomSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 roomSchema.index({ price: 1, status: 1 });

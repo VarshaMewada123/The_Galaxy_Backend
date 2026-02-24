@@ -8,9 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 const PricingService = require("./pricing.service");
 
 class OrderService {
-
   static async createOrder(userId, orderData) {
-
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -27,16 +25,15 @@ class OrderService {
       let subtotal = 0;
       const orderItems = [];
 
-
       for (const item of items) {
-
-        const menuItem = await MenuItem.findById(item.menuItemId).session(session);
+        const menuItem = await MenuItem.findById(item.menuItemId).session(
+          session,
+        );
 
         if (!menuItem || !menuItem.isAvailable) {
           throw new AppError("Menu item not available", 400);
         }
 
-        /* ⭐ CENTRAL PRICING ENGINE */
         const pricing = await PricingService.calculatePrice({
           menuItemId: item.menuItemId,
           variantId: item.variantId,
@@ -46,9 +43,6 @@ class OrderService {
 
         subtotal += pricing.subtotal;
 
-        /* ===============================
-           INVENTORY CHECK
-        =============================== */
         const inventory = await Inventory.findOne({
           menuItem: menuItem._id,
         }).session(session);
@@ -57,7 +51,6 @@ class OrderService {
           throw new AppError("Insufficient stock", 400);
         }
 
-        /* deduct stock */
         inventory.currentStock -= item.quantity;
 
         if (inventory.currentStock <= inventory.reorderLevel) {
@@ -71,9 +64,6 @@ class OrderService {
 
         await inventory.save({ session });
 
-        /* ===============================
-           ORDER SNAPSHOT
-        =============================== */
         orderItems.push({
           menuItemId: menuItem._id,
           nameSnapshot: menuItem.name,
@@ -85,18 +75,10 @@ class OrderService {
         });
       }
 
-      /* ===============================
-         ORDER LEVEL TAX / DISCOUNT
-      =============================== */
-
-      // (pricing engine already applied item discounts)
       const tax = subtotal * 0.05;
-      const discount = 0; // future: coupon engine here
+      const discount = 0;
       const grandTotal = subtotal + tax - discount;
 
-      /* ===============================
-         CREATE ORDER
-      =============================== */
       const order = await Order.create(
         [
           {
@@ -114,14 +96,13 @@ class OrderService {
             notes,
           },
         ],
-        { session }
+        { session },
       );
 
       await session.commitTransaction();
       session.endSession();
 
       return order[0];
-
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
@@ -129,11 +110,7 @@ class OrderService {
     }
   }
 
-  /* =====================================================
-     GET ALL ORDERS
-  ===================================================== */
   static async getAllOrders(query) {
-
     const filter = {};
 
     if (query.status) {
@@ -149,13 +126,8 @@ class OrderService {
       .sort({ createdAt: -1 });
   }
 
-  /* =====================================================
-     GET SINGLE ORDER
-  ===================================================== */
   static async getOrderById(orderId) {
-
-    const order = await Order.findById(orderId)
-      .populate("user", "name email");
+    const order = await Order.findById(orderId).populate("user", "name email");
 
     if (!order) {
       throw new AppError("Order not found", 404);
@@ -164,11 +136,7 @@ class OrderService {
     return order;
   }
 
-  /* =====================================================
-     UPDATE STATUS
-  ===================================================== */
   static async updateOrderStatus(orderId, newStatus) {
-
     const order = await Order.findById(orderId);
 
     if (!order) {
@@ -188,7 +156,7 @@ class OrderService {
     if (!validTransitions[order.orderStatus].includes(newStatus)) {
       throw new AppError(
         `Cannot change status from ${order.orderStatus} to ${newStatus}`,
-        400
+        400,
       );
     }
 
@@ -198,11 +166,7 @@ class OrderService {
     return order;
   }
 
-  /* =====================================================
-     CANCEL ORDER
-  ===================================================== */
   static async cancelOrder(orderId) {
-
     const order = await Order.findById(orderId);
 
     if (!order) {

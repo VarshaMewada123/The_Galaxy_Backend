@@ -8,7 +8,7 @@ const uploadToCloudinary = (fileBuffer, folder = "hotel_dining") => {
       (error, result) => {
         if (result) resolve(result);
         else reject(error);
-      }
+      },
     );
 
     streamifier.createReadStream(fileBuffer).pipe(stream);

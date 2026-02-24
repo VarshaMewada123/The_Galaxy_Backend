@@ -20,10 +20,7 @@ exports.createMenuValidation = [
     .isFloat({ min: 0 })
     .withMessage("Tax must be positive"),
 
-  body("isVeg")
-    .optional()
-    .isBoolean()
-    .withMessage("isVeg must be boolean"),
+  body("isVeg").optional().isBoolean().withMessage("isVeg must be boolean"),
 
   body("preparationTime")
     .optional()

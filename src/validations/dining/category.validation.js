@@ -12,10 +12,7 @@ exports.createCategoryValidation = [
     .isLength({ max: 500 })
     .withMessage("Description cannot exceed 500 characters"),
 
-  body("image")
-    .optional()
-    .isURL()
-    .withMessage("Image must be a valid URL"),
+  body("image").optional().isURL().withMessage("Image must be a valid URL"),
 
   body("sortOrder")
     .optional()

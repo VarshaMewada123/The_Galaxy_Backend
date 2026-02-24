@@ -73,7 +73,7 @@ const orderSchema = new mongoose.Schema(
     tableNumber: String,
     notes: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 orderSchema.index({ createdAt: -1 });

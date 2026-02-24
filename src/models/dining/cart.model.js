@@ -35,7 +35,7 @@ const cartSchema = new mongoose.Schema(
     discount: Number,
     grandTotal: Number,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Cart", cartSchema);

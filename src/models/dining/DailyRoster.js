@@ -4,8 +4,7 @@ const dailyRosterSchema = new mongoose.Schema(
   {
     date: {
       type: Date,
-      required: true
-      // ❌ removed index:true
+      required: true,
     },
 
     items: [
@@ -26,12 +25,9 @@ const dailyRosterSchema = new mongoose.Schema(
       ref: "User",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-/*
- ✅ one roster per day only
-*/
 dailyRosterSchema.index({ date: 1 }, { unique: true });
 
 module.exports = mongoose.model("DailyRoster", dailyRosterSchema);

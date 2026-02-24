@@ -36,7 +36,7 @@ const diningCategorySchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 diningCategorySchema.index({ sortOrder: 1, createdAt: -1 });

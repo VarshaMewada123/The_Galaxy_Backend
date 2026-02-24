@@ -5,9 +5,7 @@ exports.createOrderValidation = [
     .isArray({ min: 1 })
     .withMessage("Order must contain at least one item"),
 
-  body("items.*.menuItemId")
-    .isMongoId()
-    .withMessage("Invalid menu item ID"),
+  body("items.*.menuItemId").isMongoId().withMessage("Invalid menu item ID"),
 
   body("items.*.quantity")
     .isInt({ min: 1 })

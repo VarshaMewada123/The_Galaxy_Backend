@@ -55,7 +55,7 @@ const offerSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 offerSchema.index({ isActive: 1, startDate: 1, endDate: 1 });
