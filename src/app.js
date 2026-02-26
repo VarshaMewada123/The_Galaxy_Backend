@@ -17,6 +17,8 @@ const roomRoutes = require("./routes/roomRoutes");
 const fileRoutes = require("./routes/fileRoutes");
 const adminDiningRoutes = require("./routes/adminDining.routes");
 const publicMenuRoutes = require("./routes/public/menu.routes");
+const orderRoutes = require("./routes/order.routes");
+
 const app = express();
 
 app.set("trust proxy", 1);
@@ -76,6 +78,7 @@ app.use("/api/v1/rooms", roomRoutes);
 app.use("/api/v1/files", fileRoutes);
 app.use("/api/v1/admin/dining", adminDiningRoutes);
 app.use("/api/v1/menu", publicMenuRoutes);
+app.use("/api/v1/orders", orderRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
