@@ -12,20 +12,22 @@ const validate = require("../middleware/validate");
 
 const router = express.Router();
 
-const loginLimiter = rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: "Too many login attempts. Please try again later.",
-  },
-});
+// const loginLimiter = rateLimit({
+//   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+//   max: 5,
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   // 👇 ADD THIS SKIP FUNCTION
+//   skip: (req) => req.method === 'OPTIONS', 
+//   message: {
+//     success: false,
+//     message: "Too many login attempts. Please try again later.",
+//   },
+// });
 
 router.post(
   "/login",
-  loginLimiter,
+  
   [
     body("email").trim().isEmail().withMessage("Valid email is required"),
     body("password")

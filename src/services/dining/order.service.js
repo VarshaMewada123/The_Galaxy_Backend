@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Order = require("../../models/dining/order.model");
-const MenuItem = require("../../models/dining/menuItem.model");
+const MenuItem = require("../../models/dining/menuItemmodel");
 const Inventory = require("../../models/dining/inventory.model");
 const { AppError } = require("../../middleware/errorHandler");
 const { v4: uuidv4 } = require("uuid");

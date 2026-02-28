@@ -1,24 +1,6 @@
 const OrderService = require("../../services/dining/order.service");
 
-class OrderController {
-  // static async create(req, res, next) {
-  //   try {
-  //     const order = await OrderService.createOrder(
-  //       // req.user._id,
-  //       req.admin._id,
-  //       req.body.items
-  //     );
-
-  //     res.status(201).json({
-  //       success: true,
-  //       message: "Order placed successfully",
-  //       data: order,
-  //     });
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // }
-  static async create(req, res, next) {
+const create = async (req, res, next) => {
   try {
     const order = await OrderService.createOrder(
       req.admin._id,
@@ -33,9 +15,9 @@ class OrderController {
   } catch (err) {
     next(err);
   }
-}
+};
 
-  static async getAll(req, res, next) {
+const getAll = async (req, res, next) => {
   try {
     const orders = await OrderService.getAllOrders(req.query);
 
@@ -46,9 +28,9 @@ class OrderController {
   } catch (err) {
     next(err);
   }
-}
+};
 
-static async getById(req, res, next) {
+const getById = async (req, res, next) => {
   try {
     const order = await OrderService.getOrderById(req.params.id);
 
@@ -59,9 +41,9 @@ static async getById(req, res, next) {
   } catch (err) {
     next(err);
   }
-}
+};
 
-static async updateStatus(req, res, next) {
+const updateStatus = async (req, res, next) => {
   try {
     const order = await OrderService.updateOrderStatus(
       req.params.id,
@@ -76,9 +58,9 @@ static async updateStatus(req, res, next) {
   } catch (err) {
     next(err);
   }
-}
+};
 
-static async cancel(req, res, next) {
+const cancel = async (req, res, next) => {
   try {
     const order = await OrderService.cancelOrder(req.params.id);
 
@@ -90,8 +72,12 @@ static async cancel(req, res, next) {
   } catch (err) {
     next(err);
   }
-}
+};
 
-}
-
-module.exports = OrderController;
+module.exports = {
+  create,
+  getAll,
+  getById,
+  updateStatus,
+  cancel,
+};

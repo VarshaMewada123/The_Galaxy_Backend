@@ -8,7 +8,6 @@ const menuItemSchema = new mongoose.Schema(
       trim: true,
       maxlength: 150,
     },
-
     slug: {
       type: String,
       required: true,
@@ -16,55 +15,46 @@ const menuItemSchema = new mongoose.Schema(
       lowercase: true,
       index: true,
     },
-
     description: String,
-
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DiningCategory",
       required: true,
       index: true,
     },
-
     cuisineType: {
       type: String,
-      enum: [
-        "Punjabi",
-        "Rajasthani",
-        "Gujarati",
-        "Fast Food",
-        "Chinese",
-        "Other",
-      ],
+      enum: ["Punjabi", "Rajasthani", "Gujarati", "Fast Food", "Chinese", "Other"],
       index: true,
+      default: "Other"
     },
-
     basePrice: {
       type: Number,
       required: true,
       min: 0,
       index: true,
     },
-
     taxPercent: {
       type: Number,
       default: 5,
     },
-
-    images: [String],
-
+    // ✅ FIX: images ko string ke bajaye object array banaya
+    images: [
+      {
+        url: { type: String, required: true },
+        public_id: { type: String, required: true }
+      }
+    ],
     isVeg: {
       type: Boolean,
       default: true,
       index: true,
     },
-
     isAvailable: {
       type: Boolean,
       default: true,
       index: true,
     },
-
     availabilityReason: {
       type: String,
       enum: ["MANUAL", "OUT_OF_STOCK", "KITCHEN_BUSY"],
@@ -75,28 +65,24 @@ const menuItemSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
-
     isFeatured: {
       type: Boolean,
       default: false,
       index: true,
     },
-
     preparationTime: {
       type: Number,
       default: 15,
     },
-
     spiceLevel: {
       type: String,
       enum: ["MILD", "MEDIUM", "SPICY"],
       default: "MEDIUM",
     },
-
     ingredients: [String],
     allergens: [String],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 menuItemSchema.index({ category: 1, isAvailable: 1 });

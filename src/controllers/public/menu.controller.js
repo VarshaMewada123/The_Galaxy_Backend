@@ -1,4 +1,4 @@
-const Menu = require("../../models/dining/menuItem.model"); // apna model name use karna
+const Menu = require("../../models/dining/menuItemmodel"); // apna model name use karna
 
 exports.getMenuForUsers = async (req, res, next) => {
   try {

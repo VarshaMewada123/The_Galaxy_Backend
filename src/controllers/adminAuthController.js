@@ -31,43 +31,42 @@ exports.adminLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    // 1. Fetch admin and explicitly include password
     const admin = await Admin.findOne({ email }).select("+password");
 
+    // 2. Unified check for existence and activity
     if (!admin || !admin.isActive) {
       return next(new AppError("Invalid email or password", 401));
     }
 
+    // 3. Password comparison
     const isMatch = await admin.comparePassword(password);
-
     if (!isMatch) {
       return next(new AppError("Invalid email or password", 401));
     }
 
+    // 4. Token Generation
     const accessToken = generateAccessToken(admin);
     const refreshToken = generateRefreshToken(admin);
 
-    /**
-     * Secure Cookie Options
-     */
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "lax", // Consider "strict" for admin panels
     };
 
-    // Access Token Cookie
+    // 5. Set Cookies with explicit durations
     res.cookie("adminAccessToken", accessToken, {
       ...cookieOptions,
-      // maxAge: 60 * 60 * 1000, // 15 minutes
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
-    // Refresh Token Cookie
     res.cookie("adminRefreshToken", refreshToken, {
       ...cookieOptions,
-      // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Login successful",
       admin: {
@@ -77,7 +76,9 @@ exports.adminLogin = async (req, res, next) => {
       },
     });
   } catch (err) {
-    return next(new AppError("Admin login failed", 500));
+    // Log the actual error for your own debugging, but keep the response generic
+    console.error("Login Error:", err); 
+    return next(new AppError("An unexpected error occurred during login", 500));
   }
 };
 

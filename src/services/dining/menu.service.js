@@ -1,4 +1,4 @@
-const MenuItem = require("../../models/dining/menuItem.model");
+const MenuItem = require("../../models/dining/menuItemmodel");
 const slugify = require("slugify");
 const { AppError } = require("../../middleware/errorHandler");
 

@@ -1,6 +1,6 @@
-const MenuItem = require("../../models/dining/menuItem.model");
+const MenuItem = require("../../models/dining/menuItemmodel");
 const MenuVariant = require("../../models/dining/menuVariant.model");
-const MenuAddon = require("../../models/dining/menuAddon.model");
+const MenuAddon = require("../../models/dining/menuAddonmodel");
 const Offer = require("../../models/dining/offer.model");
 const { AppError } = require("../../middleware/errorHandler");
 

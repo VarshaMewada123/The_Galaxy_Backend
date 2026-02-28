@@ -1,5 +1,5 @@
 const Inventory = require("../../models/dining/inventory.model");
-const MenuItem = require("../../models/dining/menuItem.model");
+const MenuItem = require("../../models/dining/menuItemmodel");
 const { AppError } = require("../../middleware/errorHandler");
 
 class InventoryService {
