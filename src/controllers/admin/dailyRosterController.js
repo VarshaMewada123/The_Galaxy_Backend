@@ -11,7 +11,7 @@ const upsertRoster = async (req, res, next) => {
     }
 
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
     const maxDate = new Date();
     maxDate.setMonth(maxDate.getMonth() + 6);
@@ -20,7 +20,7 @@ const upsertRoster = async (req, res, next) => {
 
     for (const d of dates) {
       const selectedDate = new Date(d);
-      selectedDate.setHours(0,0,0,0);
+      selectedDate.setHours(0, 0, 0, 0);
 
       if (selectedDate < today)
         return res.status(400).json({ message: "Past dates not allowed" });
@@ -35,7 +35,7 @@ const upsertRoster = async (req, res, next) => {
           notes,
           createdBy: req.user?._id,
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       );
 
       results.push(roster);
@@ -51,17 +51,15 @@ const getRosterByDate = async (req, res, next) => {
   try {
     const { date } = req.query;
 
-    if (!date)
-      return res.status(400).json({ message: "Date required" });
+    if (!date) return res.status(400).json({ message: "Date required" });
 
     const selectedDate = new Date(date);
-    selectedDate.setHours(0,0,0,0);
+    selectedDate.setHours(0, 0, 0, 0);
 
-    const roster = await DailyRoster.findOne({ date: selectedDate })
-      .populate({
-        path: "items",
-        populate: { path: "category", select: "name" },
-      });
+    const roster = await DailyRoster.findOne({ date: selectedDate }).populate({
+      path: "items",
+      populate: { path: "category", select: "name" },
+    });
 
     res.json({
       success: true,

@@ -1,6 +1,5 @@
 const AnalyticsService = require("../../services/dining/analytics.service");
 
-// controller functions instead of class
 const getSummary = async (req, res, next) => {
   try {
     const data = await AnalyticsService.getSummary();

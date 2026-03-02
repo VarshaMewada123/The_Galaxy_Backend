@@ -75,7 +75,8 @@ const remove = async (req, res) => {
     await DiningCategory.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error("Something went wrong",error)
+    return res.status(500).json({ success: false, message: error });
   }
 };
 

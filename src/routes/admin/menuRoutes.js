@@ -13,7 +13,7 @@ router.use(adminAuth);
 router.route("/menu")
   .get(MenuController.getAll)
   .post(
-    upload.array("images", 5), // 'images' key frontend se match honi chahiye
+    upload.array("images", 5),
     createMenuValidation, 
     validate, 
     MenuController.create

@@ -1,6 +1,7 @@
 const MenuItem = require("../../models/dining/menuItemmodel");
 const slugify = require("slugify");
 const { AppError } = require("../../middleware/errorHandler");
+const diningCategorymodel = require("../../models/dining/diningCategorymodel");
 
 class MenuService {
   static async create(data) {
@@ -12,12 +13,23 @@ class MenuService {
     return MenuItem.create({ ...data, slug });
   }
   static async getAll(filters = {}) {
-    return MenuItem.find({
+    const categories = await diningCategorymodel
+      .find({ isDeleted: false })
+      .select("_id")
+      .lean();
+
+    const categoryIds = categories.map((c) => c._id);
+
+    const menuItems = await MenuItem.find({
       ...filters,
       isDeleted: false,
+      category: { $in: categoryIds },
     })
       .populate("category")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return menuItems;
   }
 
   static async getById(id) {
