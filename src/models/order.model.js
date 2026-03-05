@@ -42,15 +42,13 @@ const orderSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 orderSchema.pre("save", function (next) {
   if (!this.orderNumber) {
-    this.orderNumber =
-      "GX" + Date.now().toString().slice(-8);
+    this.orderNumber = "GX" + Date.now().toString().slice(-8);
   }
-  //next();
 });
 
 module.exports = mongoose.model("UserOrder", orderSchema);

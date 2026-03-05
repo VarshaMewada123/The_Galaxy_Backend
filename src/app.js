@@ -14,13 +14,13 @@ const adminRoutes = require("./routes/adminRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const fileRoutes = require("./routes/fileRoutes");
 const publicMenuRoutes = require("./routes/public/menu.routes");
-const orderRoutes = require("./routes/order.routes");
 const diningCategory = require("./routes/admin/diningCategoryRoutes");
 const analyticsRoutes = require("./routes/admin/analyticsRoutes");
 const inventoryRoutes = require("./routes/admin/inventoryRoutes");
 const menuRoutes = require("./routes/admin/menuRoutes");
 const offerRoutes = require("./routes/admin/offerRoutes");
 const rosterRoutes = require("./routes/admin/rosterRoutes");
+const ordersRoutes = require("./routes/orders/ordersRoutes");
 
 const app = express();
 
@@ -67,13 +67,16 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/rooms", roomRoutes);
 app.use("/api/v1/files", fileRoutes);
 app.use("/api/v1/menu", publicMenuRoutes);
-app.use("/api/v1/orders", orderRoutes);
+
 app.use("/api/v1/admin/dining", diningCategory);
 app.use("/api/v1/admin/analytics", analyticsRoutes);
 app.use("/api/v1/admin/inventory", inventoryRoutes);
 app.use("/api/v1/admin/dining", menuRoutes);
 app.use("/api/v1/admin/offers", offerRoutes);
 app.use("/api/v1/admin/roster", rosterRoutes);
+
+app.use("/api/v1/orders", ordersRoutes);
+
 app.use(notFound);
 app.use(errorHandler);
 

@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
-      required: [true, "Full name is required"],
+      required: true,
       trim: true,
       minlength: 2,
       maxlength: 100,
@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
+      required: true,
       unique: true,
       index: true,
       match: [/^[6-9]\d{9}$/, "Invalid Indian mobile number"],
@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: null,
       sparse: true,
-      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
     },
 
     isVerified: {
@@ -33,10 +32,7 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
-    otp: {
-      type: String,
-      select: false,
-    },
+    otp: { type: String, select: false },
 
     otpExpiresAt: {
       type: Date,
@@ -55,9 +51,38 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    otpRequestWindowStartedAt: {
+      type: Date,
+      select: false,
+    },
+
+    otpAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["otp"],
+      default: "otp",
+    },
+
     lastLoginAt: {
       type: Date,
       default: null,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+      index: true,
     },
   },
   {
@@ -68,5 +93,6 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.index({ phone: 1 });
+userSchema.index({ phone: 1, isVerified: 1 });
 
 module.exports = mongoose.model("User", userSchema);
