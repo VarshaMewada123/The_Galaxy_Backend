@@ -1,11 +1,12 @@
 const DailyRoster = require("../../models/dining/DailyRoster");
-
+const mongoose = require("mongoose")
 const upsertRoster = async (req, res, next) => {
   try {
     const { dates, items, notes } = req.body;
 
     if (!dates?.length || !items?.length) {
       return res.status(400).json({
+        success: false,
         message: "Dates and items are required",
       });
     }
@@ -15,56 +16,78 @@ const upsertRoster = async (req, res, next) => {
 
     const maxDate = new Date();
     maxDate.setMonth(maxDate.getMonth() + 6);
+    maxDate.setHours(0, 0, 0, 0);
 
     const results = [];
 
     for (const d of dates) {
-      const selectedDate = new Date(d);
-      selectedDate.setHours(0, 0, 0, 0);
+      const date = new Date(d);
+      date.setHours(0, 0, 0, 0);
 
-      if (selectedDate < today)
-        return res.status(400).json({ message: "Past dates not allowed" });
+      if (date < today || date > maxDate) continue;
 
-      if (selectedDate > maxDate)
-        return res.status(400).json({ message: "Only next 6 months allowed" });
+      const formattedItems = items.map((i) => ({
+        id: new mongoose.Types.ObjectId(i.id),
+        quantity: i.quantity,
+      }));
 
-      const roster = await DailyRoster.findOneAndUpdate(
-        { date: selectedDate },
-        {
-          items,
-          notes,
+      const existingRoster = await DailyRoster.findOne({ date });
+
+      if (existingRoster) {
+        existingRoster.items = formattedItems;
+        existingRoster.notes = notes || "";
+        await existingRoster.save();
+        results.push(existingRoster);
+      } else {
+        const roster = await DailyRoster.create({
+          date,
+          items: formattedItems,
+          notes: notes || "",
           createdBy: req.user?._id,
-        },
-        { upsert: true, new: true },
-      );
+        });
 
-      results.push(roster);
+        results.push(roster);
+      }
     }
 
-    res.json({ success: true, count: results.length, data: results });
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
   } catch (err) {
     next(err);
   }
 };
 
+
 const getRosterByDate = async (req, res, next) => {
   try {
     const { date } = req.query;
 
-    if (!date) return res.status(400).json({ message: "Date required" });
+    if (!date) {
+      return res.status(400).json({ message: "Date required" });
+    }
 
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
 
-    const roster = await DailyRoster.findOne({ date: selectedDate }).populate({
-      path: "items",
-      populate: { path: "category", select: "name" },
-    });
+    const roster = await DailyRoster.findOne({ date: selectedDate })
+      .populate({
+        path: "items.id",
+        select: "name price images category",
+        populate: {
+          path: "category",
+          select: "name",
+        },
+      })
+      .lean();
 
     res.json({
       success: true,
       data: roster || { items: [] },
     });
+
   } catch (err) {
     next(err);
   }

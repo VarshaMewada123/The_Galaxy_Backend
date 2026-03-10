@@ -16,11 +16,17 @@ const fileRoutes = require("./routes/fileRoutes");
 const publicMenuRoutes = require("./routes/public/menu.routes");
 const diningCategory = require("./routes/admin/diningCategoryRoutes");
 const analyticsRoutes = require("./routes/admin/analyticsRoutes");
-const inventoryRoutes = require("./routes/admin/inventoryRoutes");
 const menuRoutes = require("./routes/admin/menuRoutes");
 const offerRoutes = require("./routes/admin/offerRoutes");
 const rosterRoutes = require("./routes/admin/rosterRoutes");
 const ordersRoutes = require("./routes/orders/ordersRoutes");
+const categoryRoutes = require("./routes/public/categories.routes");
+const addressRoutes = require("./routes/addressRoutes");
+const newsletterRoutes = require("./routes/newsletterRoutes");
+const combsRoutes = require("./routes/admin/comboRoutes");
+const adminOrderRoutes = require("./routes/admin/adminOrderRoutes");
+const enquiryRoutes =require("./routes/enquiryRoutes")
+const router = require("express").Router();
 
 const app = express();
 
@@ -67,16 +73,18 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/rooms", roomRoutes);
 app.use("/api/v1/files", fileRoutes);
 app.use("/api/v1/menu", publicMenuRoutes);
-
 app.use("/api/v1/admin/dining", diningCategory);
 app.use("/api/v1/admin/analytics", analyticsRoutes);
-app.use("/api/v1/admin/inventory", inventoryRoutes);
 app.use("/api/v1/admin/dining", menuRoutes);
 app.use("/api/v1/admin/offers", offerRoutes);
 app.use("/api/v1/admin/roster", rosterRoutes);
-
+app.use("/api/v1/categories", categoryRoutes);
 app.use("/api/v1/orders", ordersRoutes);
-
+app.use("/api/v1/addresses", addressRoutes);
+app.use("/api/v1/newsletter", newsletterRoutes);
+app.use("/api/v1/admin/dining", combsRoutes);
+app.use("/api/v1/admin/dining", adminOrderRoutes);
+app.use("/api/v1/enquiries", enquiryRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

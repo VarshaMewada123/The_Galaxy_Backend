@@ -189,3 +189,48 @@ exports.verifyOtp = async (req, res) => {
     });
   }
 };
+
+exports.AddAddress = async (re, res) => {
+  try {
+  } catch (error) {
+    console.error("Something went wrong!", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error !",
+    });
+  }
+};
+exports.getAddress = async (req, res) => {
+  try {
+  } catch (error) {
+    console.error("Something went wrong!", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error !",
+    });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { fullName, email } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { fullName, email },
+      { new: true },
+    );
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error("UPDATE PROFILE ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Profile update failed",
+    });
+  }
+};

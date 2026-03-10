@@ -3,8 +3,6 @@ const slugify = require("slugify");
 const uploadToCloudinary = require("../../utils/cloudUpload");
 const cloudinary = require("cloudinary").v2;
 
-
-
 const create = async (req, res) => {
   try {
     const { name, description, sortOrder, isActive } = req.body;
@@ -20,7 +18,7 @@ const create = async (req, res) => {
       description,
       image: imageData,
       sortOrder: sortOrder ? Number(sortOrder) : 0,
-      isActive: isActive === 'false' ? false : true,
+      isActive: isActive === "false" ? false : true,
     });
 
     res.status(201).json({ success: true, data: category });
@@ -33,7 +31,8 @@ const update = async (req, res) => {
   try {
     const categoryId = req.params.id;
     let category = await DiningCategory.findById(categoryId);
-    if (!category) return res.status(404).json({ success: false, message: "Not found" });
+    if (!category)
+      return res.status(404).json({ success: false, message: "Not found" });
 
     if (req.body.name) {
       req.body.slug = slugify(req.body.name, { lower: true, strict: true });
@@ -54,7 +53,7 @@ const update = async (req, res) => {
     const updatedCategory = await DiningCategory.findByIdAndUpdate(
       categoryId,
       { $set: req.body },
-      { returnDocument: "after", runValidators: true }
+      { returnDocument: "after", runValidators: true },
     );
 
     res.status(200).json({ success: true, data: updatedCategory });
@@ -66,7 +65,8 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     const category = await DiningCategory.findById(req.params.id);
-    if (!category) return res.status(404).json({ success: false, message: "Not found" });
+    if (!category)
+      return res.status(404).json({ success: false, message: "Not found" });
 
     if (category.image?.public_id) {
       await cloudinary.uploader.destroy(category.image.public_id);
@@ -75,20 +75,17 @@ const remove = async (req, res) => {
     await DiningCategory.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
-    console.error("Something went wrong",error)
+    console.error("Something went wrong", error);
     return res.status(500).json({ success: false, message: error });
   }
 };
 
-
-
-
-
-
-
 const getAll = async (req, res) => {
   try {
-    const categories = await DiningCategory.find().sort({ sortOrder: 1, createdAt: -1 });
+    const categories = await DiningCategory.find().sort({
+      sortOrder: 1,
+      createdAt: -1,
+    });
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -98,14 +95,15 @@ const getAll = async (req, res) => {
 const getById = async (req, res) => {
   try {
     const category = await DiningCategory.findById(req.params.id);
-    if (!category) return res.status(404).json({ success: false, message: "Category not found" });
+    if (!category)
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
     res.status(200).json({ success: true, data: category });
   } catch (error) {
     res.status(400).json({ success: false, message: "Invalid ID" });
   }
 };
-
-
 
 module.exports = {
   create,

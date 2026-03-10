@@ -5,14 +5,37 @@ const orderItemSchema = new mongoose.Schema(
     menuItem: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MenuItem",
+      required: false,
+    },
+
+    combo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Combo",
+      required: false,
+    },
+
+    name: {
+      type: String,
       required: true,
     },
-    name: String,
-    price: Number,
-    quantity: Number,
-    total: Number,
+
+    price: {
+      type: Number,
+      required: true,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    total: {
+      type: Number,
+      required: true,
+    },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const orderSchema = new mongoose.Schema(
@@ -22,18 +45,30 @@ const orderSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,
     },
-    items: [orderItemSchema],
+
+    items: {
+      type: [orderItemSchema],
+      validate: {
+        validator: function (items) {
+          return items.length > 0;
+        },
+        message: "Order must contain at least one item",
+      },
+    },
+
     pricing: {
       subtotal: Number,
       tax: Number,
       total: Number,
     },
+
     address: {
       fullName: String,
       phone: String,
@@ -42,14 +77,28 @@ const orderSchema = new mongoose.Schema(
       state: String,
       pincode: String,
     },
+
     status: {
       type: String,
-      enum: ["pending", "confirmed", "preparing", "delivered", "cancelled"],
+      enum: [
+        "pending",
+        "confirmed",
+        "preparing",
+        "out_for_delivery",
+        "delivered",
+        "cancelled",
+      ],
       default: "pending",
       index: true,
     },
+
+    deliveryPartnerLocation: {
+      lat: Number,
+      lng: Number,
+    },
   },
-  { timestamps: true },
+
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Orders", orderSchema);

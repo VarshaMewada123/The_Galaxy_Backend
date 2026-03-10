@@ -18,5 +18,11 @@ router.get("/", protect, (req, res, next) => {
   console.log("GET /orders called");
   orderController.getMyOrders(req, res, next);
 });
+router.get("/:id", protect, (req, res, next) => {
+  console.log("GET /orders/:id called");
+  orderController.getOrderById(req, res, next);
+});
+router.patch("/:id/status", protect, orderController.updateOrderStatus);
 
+router.patch("/:orderId/cancel", protect, orderController.cancelOrder);
 module.exports = router;

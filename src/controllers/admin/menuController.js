@@ -58,7 +58,6 @@ const update = async (req, res, next) => {
     let imageUrls = [];
     const updatedData = { ...req.body };
 
-    // New images upload
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await uploadToCloudinary(file.buffer, "menu_items");
@@ -70,7 +69,6 @@ const update = async (req, res, next) => {
       updatedData.images = imageUrls;
     }
 
-    // Convert numeric/boolean strings from FormData
     if (req.body.basePrice) updatedData.basePrice = Number(req.body.basePrice);
     if (req.body.isVeg !== undefined)
       updatedData.isVeg = req.body.isVeg === "false" ? false : true;
