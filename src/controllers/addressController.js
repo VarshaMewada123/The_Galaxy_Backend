@@ -22,8 +22,8 @@ exports.addAddress = async (req, res, next) => {
       user: req.user.id,
       street,
       landmark,
-      // city,
-      // pincode,
+      city,
+      pincode,
       label,
       isDefault,
     });
@@ -132,8 +132,8 @@ exports.updateAddress = async (req, res, next) => {
       {
         street: req.body.street,
         landmark: req.body.landmark,
-        // city: req.body.city,
-        // pincode: req.body.pincode,
+        city: req.body.city,
+        pincode: req.body.pincode,
         label: req.body.label,
       },
       {
