@@ -56,6 +56,11 @@ const menuItemSchema = new mongoose.Schema(
       default: true,
       index: true,
     },
+    isJain: {
+  type: Boolean,
+  default: false,
+  index: true,
+},
     isAvailable: {
       type: Boolean,
       default: true,

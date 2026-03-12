@@ -62,11 +62,7 @@ exports.createOrder = async (req, res, next) => {
           quantity: item.quantity,
           total,
         });
-      }
-
-      /* ===== COMBO ===== */
-
-      if (item.combo) {
+      } else if (item.combo) {
         const combo = await Combo.findById(item.combo).populate("items.item");
 
         if (!combo) {
@@ -84,24 +80,43 @@ exports.createOrder = async (req, res, next) => {
         for (const comboItem of combo.items) {
           const requiredQty = comboItem.quantity * item.quantity;
 
-          const updatedRoster = await DailyRoster.findOneAndUpdate(
+          const roster = await DailyRoster.findOne({
+            date: today,
+            "items.id": comboItem.item._id,
+          });
+
+          if (!roster) {
+            return res.status(400).json({
+              success: false,
+              message: "combo items are out of stock",
+            });
+          }
+
+          const rosterItem = roster.items.find(
+            (i) => i.id.toString() === comboItem.item._id.toString(),
+          );
+
+          if (!rosterItem || rosterItem.quantity < requiredQty) {
+            return res.status(400).json({
+              success: false,
+              message: "combo items are out of stock",
+            });
+          }
+        }
+
+        for (const comboItem of combo.items) {
+          const requiredQty = comboItem.quantity * item.quantity;
+
+          await DailyRoster.findOneAndUpdate(
             {
               date: today,
               "items.id": comboItem.item._id,
-              "items.quantity": { $gte: requiredQty },
             },
             {
               $inc: { "items.$.quantity": -requiredQty },
             },
             { new: true },
           );
-
-          if (!updatedRoster) {
-            return res.status(400).json({
-              success: false,
-              message: `${comboItem.item.name} is out of stock`,
-            });
-          }
         }
 
         orderItems.push({
