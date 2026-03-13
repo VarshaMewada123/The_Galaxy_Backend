@@ -2,9 +2,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const { AppError } = require("../middleware/errorHandler");
 
-/**
- * Generate Access Token
- */
+
 const generateAccessToken = (admin) => {
   return jwt.sign(
     { id: admin._id, role: admin.role },
@@ -15,18 +13,14 @@ const generateAccessToken = (admin) => {
   );
 };
 
-/**
- * Generate Refresh Token
- */
+
 const generateRefreshToken = (admin) => {
   return jwt.sign({ id: admin._id }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   });
 };
 
-/**
- * Admin Login
- */
+
 exports.adminLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -82,9 +76,7 @@ exports.adminLogin = async (req, res, next) => {
   }
 };
 
-/**
- * Get Current Admin (Protected Route)
- */
+
 exports.getCurrentAdmin = async (req, res, next) => {
   try {
     if (!req.admin) {
@@ -100,9 +92,7 @@ exports.getCurrentAdmin = async (req, res, next) => {
   }
 };
 
-/**
- * Admin Logout
- */
+
 exports.adminLogout = async (req, res, next) => {
   try {
     res.clearCookie("adminAccessToken");
