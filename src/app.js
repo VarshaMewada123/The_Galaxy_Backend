@@ -27,6 +27,8 @@ const combsRoutes = require("./routes/admin/comboRoutes");
 const adminOrderRoutes = require("./routes/admin/adminOrderRoutes");
 const enquiryRoutes =require("./routes/enquiryRoutes")
 const reviewRoutes =require("./routes/reviewRoutes")
+const combsRoute = require("./routes/public/combo.routes");
+const offerRoute = require("./routes/offer.routes");
 const router = require("express").Router();
 
 const app = express();
@@ -87,6 +89,8 @@ app.use("/api/v1/admin/dining", combsRoutes);
 app.use("/api/v1/admin/dining", adminOrderRoutes);
 app.use("/api/v1/enquiries", enquiryRoutes);
 app.use("/api/v1/reviews",reviewRoutes);
+app.use("/api/v1/dining", combsRoute);
+app.use("/api/v1/admin/dining", offerRoute);
 app.use(notFound);
 app.use(errorHandler);
 
