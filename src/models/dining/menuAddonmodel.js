@@ -12,7 +12,7 @@ const menuAddonSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    
+
     addons: [
       {
         type: mongoose.Schema.Types.ObjectId,

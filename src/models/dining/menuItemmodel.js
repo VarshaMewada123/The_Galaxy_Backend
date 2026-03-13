@@ -24,9 +24,16 @@ const menuItemSchema = new mongoose.Schema(
     },
     cuisineType: {
       type: String,
-      enum: ["Punjabi", "Rajasthani", "Gujarati", "Fast Food", "Chinese", "Other"],
+      enum: [
+        "Punjabi",
+        "Rajasthani",
+        "Gujarati",
+        "Fast Food",
+        "Chinese",
+        "Other",
+      ],
       index: true,
-      default: "Other"
+      default: "Other",
     },
     basePrice: {
       type: Number,
@@ -38,18 +45,22 @@ const menuItemSchema = new mongoose.Schema(
       type: Number,
       default: 5,
     },
-    // ✅ FIX: images ko string ke bajaye object array banaya
     images: [
       {
         url: { type: String, required: true },
-        public_id: { type: String, required: true }
-      }
+        public_id: { type: String, required: true },
+      },
     ],
     isVeg: {
       type: Boolean,
       default: true,
       index: true,
     },
+    isJain: {
+  type: Boolean,
+  default: false,
+  index: true,
+},
     isAvailable: {
       type: Boolean,
       default: true,
@@ -82,7 +93,7 @@ const menuItemSchema = new mongoose.Schema(
     ingredients: [String],
     allergens: [String],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 menuItemSchema.index({ category: 1, isAvailable: 1 });

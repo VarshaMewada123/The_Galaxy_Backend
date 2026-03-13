@@ -1,6 +1,5 @@
 const InventoryService = require("../../services/dining/inventory.service");
 
-// controller functions
 const getAll = async (req, res, next) => {
   try {
     const data = await InventoryService.getAll();
@@ -29,9 +28,7 @@ const getLowStock = async (req, res, next) => {
 
 const getByMenuItem = async (req, res, next) => {
   try {
-    const data = await InventoryService.getByMenuItem(
-      req.params.menuItemId
-    );
+    const data = await InventoryService.getByMenuItem(req.params.menuItemId);
 
     res.json({
       success: true,
@@ -46,7 +43,7 @@ const restock = async (req, res, next) => {
   try {
     const data = await InventoryService.restock(
       req.params.menuItemId,
-      Number(req.body.quantity)
+      Number(req.body.quantity),
     );
 
     res.json({

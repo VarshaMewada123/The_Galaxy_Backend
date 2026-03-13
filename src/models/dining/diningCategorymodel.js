@@ -23,10 +23,9 @@ const diningCategorySchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true, index: true },
     sortOrder: { type: Number, default: 0, index: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// Pre-save hook for slug - fix for "next is not a function"
 diningCategorySchema.pre("save", async function () {
   if (this.isModified("name")) {
     this.slug = slugify(this.name, { lower: true, strict: true });

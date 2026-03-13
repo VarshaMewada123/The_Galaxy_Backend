@@ -1,5 +1,25 @@
 const mongoose = require("mongoose");
 
+const orderItemSchema = new mongoose.Schema({
+  menuItem: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MenuItem",
+  },
+
+  combo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Combo",
+  },
+
+  name: String,
+
+  price: Number,
+
+  quantity: Number,
+
+  total: Number,
+});
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -9,17 +29,7 @@ const orderSchema = new mongoose.Schema(
       index: true,
     },
 
-    items: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
-        },
-        qty: Number,
-        price: Number,
-      },
-    ],
+    items: [orderItemSchema],
 
     address: {
       fullName: String,
@@ -32,7 +42,7 @@ const orderSchema = new mongoose.Schema(
 
     pricing: {
       subtotal: Number,
-      taxes: Number,
+      tax: Number,
       total: Number,
     },
 
@@ -41,16 +51,34 @@ const orderSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+
+    status: {
+      type: String,
+      enum: [
+        "pending",
+        "confirmed",
+        "preparing",
+        "out_for_delivery",
+        "delivered",
+        "cancelled",
+      ],
+      default: "pending",
+      index: true,
+    },
+
+    rider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 orderSchema.pre("save", function (next) {
   if (!this.orderNumber) {
-    this.orderNumber =
-      "GX" + Date.now().toString().slice(-8);
+    this.orderNumber = "ORD-" + Date.now().toString().slice(-8);
   }
-  //next();
+  next();
 });
 
-module.exports = mongoose.model("UserOrder", orderSchema);
+module.exports = mongoose.model("Order", orderSchema);

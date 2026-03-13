@@ -2,10 +2,7 @@ const OrderService = require("../../services/dining/order.service");
 
 const create = async (req, res, next) => {
   try {
-    const order = await OrderService.createOrder(
-      req.admin._id,
-      req.body
-    );
+    const order = await OrderService.createOrder(req.admin._id, req.body);
 
     res.status(201).json({
       success: true,
@@ -47,7 +44,7 @@ const updateStatus = async (req, res, next) => {
   try {
     const order = await OrderService.updateOrderStatus(
       req.params.id,
-      req.body.status
+      req.body.status,
     );
 
     res.json({

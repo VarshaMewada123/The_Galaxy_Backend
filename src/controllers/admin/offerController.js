@@ -25,7 +25,6 @@ const getAll = async (req, res, next) => {
   }
 };
 
-
 const getById = async (req, res, next) => {
   try {
     const offer = await OfferService.getById(req.params.id);
@@ -81,5 +80,5 @@ module.exports = {
   getById,
   getActive,
   update,
-  remove, // Exported as 'remove'
+  remove,
 };

@@ -9,9 +9,16 @@ const dailyRosterSchema = new mongoose.Schema(
 
     items: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "MenuItem",
-        required: true,
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "MenuItem",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          default: 10,
+        },
       },
     ],
 
