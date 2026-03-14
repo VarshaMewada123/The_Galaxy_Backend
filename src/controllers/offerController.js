@@ -2,10 +2,10 @@ const Offer = require("../models/Offer");
 const MenuItem = require("../models/dining/menuItemmodel");
 const Combo = require("../models/dining/combomodel");
 
-const uploadToCloudinary = require("../utils/uploadToCloudinary");
 const cloudinary = require("../config/cloudinary");
 
 const { getFinalPrice } = require("../services/price.service");
+const uploadToCloudinary = require("../utils/cloudUpload");
 
 
 // ===============================
@@ -78,7 +78,7 @@ const createOffer = async (req, res) => {
     let imageData = {};
 
     if (req.file) {
-      const uploaded = await uploadToCloudinary(req.file.buffer, "offers");
+      const uploaded = await uploadToCloudinarys(req.file.buffer, "offers");
 
       imageData = {
         url: uploaded.secure_url,
