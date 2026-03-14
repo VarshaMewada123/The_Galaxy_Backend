@@ -1,30 +1,78 @@
 const Offer = require("../models/Offer");
 
-const getFinalPrice = async (item) => {
+/**
+ * Swiggy-style pricing calculation
+ * @param {Object} item - menu item or combo
+ * @param {String} type - "item" | "combo"
+ */
 
-const now = new Date();
+const getFinalPrice = async (item, type = "item") => {
+  const now = new Date();
 
-const offer = await Offer.findOne({
-$or: [
-{ items: item._id },
-{ combos: item._id }
-],
-isActive: true,
-startDate: { $lte: now },
-endDate: { $gte: now }
-});
+  const basePrice = item.basePrice ?? item.price ?? 0;
 
-if (!offer) return item.basePrice;
+  const query = {
+    isActive: true,
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+  };
 
-if (offer.discountType === "PERCENTAGE") {
-return item.basePrice - (item.basePrice * offer.discountValue / 100);
-}
+  if (type === "item") query.items = item._id;
+  if (type === "combo") query.combos = item._id;
 
-if (offer.discountType === "FLAT") {
-return item.basePrice - offer.discountValue;
-}
+  const offer = await Offer.findOne(query).lean();
 
-return item.basePrice;
+  // NO OFFER
+  if (!offer) {
+    return {
+      basePrice,
+      originalPrice: basePrice,
+      discountAmount: 0,
+      finalPrice: basePrice,
+      savings: 0,
+      discountLabel: null,
+      offer: null,
+    };
+  }
+
+  let discountAmount = 0;
+
+  // PERCENTAGE DISCOUNT
+  if (offer.discountType === "PERCENTAGE") {
+    discountAmount = Math.round((basePrice * offer.discountValue) / 100);
+  }
+
+  // FLAT DISCOUNT
+  if (offer.discountType === "FLAT") {
+    discountAmount = offer.discountValue;
+  }
+
+  // Prevent discount > price
+  discountAmount = Math.min(discountAmount, basePrice);
+
+  const finalPrice = Math.max(basePrice - discountAmount, 0);
+
+  const discountLabel =
+    offer.discountType === "PERCENTAGE"
+      ? `${offer.discountValue}% OFF`
+      : `₹${offer.discountValue} OFF`;
+
+  return {
+    basePrice,
+    originalPrice: basePrice,
+    discountAmount,
+    finalPrice,
+    savings: discountAmount,
+    discountLabel,
+    offer: {
+      _id: offer._id,
+      name: offer.name,
+      discountType: offer.discountType,
+      discountValue: offer.discountValue,
+      endDate: offer.endDate,
+      image: offer.image,
+    },
+  };
 };
 
 module.exports = { getFinalPrice };

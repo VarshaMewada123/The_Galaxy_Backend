@@ -61,12 +61,12 @@ exports.sendOtp = async (req, res) => {
       user.otpRequestCount = 0;
     }
 
-    if (user.otpRequestCount >= MAX_OTP_REQUESTS) {
-      return res.status(429).json({
-        success: false,
-        message: "Too many OTP requests. Try again later.",
-      });
-    }
+    // if (user.otpRequestCount >= MAX_OTP_REQUESTS) {
+    //   return res.status(429).json({
+    //     success: false,
+    //     message: "Too many OTP requests. Try again later.",
+    //   });
+    // }
 
     const otp = generateOTP();
     const hashedOtp = hashOTP(otp);

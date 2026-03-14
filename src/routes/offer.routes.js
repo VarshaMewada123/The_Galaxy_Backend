@@ -9,7 +9,7 @@ const {
   getOffers,
   getOfferById,
   deleteOffer
-} = require("../controllers/offer.controller");
+} = require("../controllers/offerController");
 
 router.post("/", upload.single("image"), createOffer);
 

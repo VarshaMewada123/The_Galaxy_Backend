@@ -90,7 +90,7 @@ app.use("/api/v1/admin/dining", adminOrderRoutes);
 app.use("/api/v1/enquiries", enquiryRoutes);
 app.use("/api/v1/reviews",reviewRoutes);
 app.use("/api/v1/dining", combsRoute);
-app.use("/api/v1/admin/dining", offerRoute);
+app.use("/api/v1/admin/dining/offers", offerRoute);
 app.use(notFound);
 app.use(errorHandler);
 
