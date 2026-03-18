@@ -1,4 +1,4 @@
-const MenuService = require("../../services/dining/menu.service");
+const MenuService = require("../../services/dining/menuService");
 const uploadToCloudinary = require("../../utils/cloudUpload");
 
 const create = async (req, res, next) => {

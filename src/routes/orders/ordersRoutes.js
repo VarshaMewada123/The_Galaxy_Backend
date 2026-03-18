@@ -25,4 +25,5 @@ router.get("/:id", protect, (req, res, next) => {
 router.patch("/:id/status", protect, orderController.updateOrderStatus);
 
 router.patch("/:orderId/cancel", protect, orderController.cancelOrder);
+
 module.exports = router;

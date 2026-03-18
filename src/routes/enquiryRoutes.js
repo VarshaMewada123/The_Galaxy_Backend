@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const enquiryController = require("../controllers/enquiryController");
-const { createEnquiryValidator } = require("../validations/enquiryValidator");
+const { createEnquiryValidator } = require("../validations/enquiry/enquiryValidator");
 const validateRequest = require("../middleware/validate");
 
 router.post(

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const comboController = require("../../controllers/public/combo.controller");
-router.get("/combos", comboController.getCombo);
+const getOffers = require("../../controllers/offerController");
+router.get("/", getOffers);
 module.exports = router;

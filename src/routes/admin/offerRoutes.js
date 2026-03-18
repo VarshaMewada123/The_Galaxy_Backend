@@ -6,17 +6,15 @@ const OfferController = require("../../controllers/admin/offerController");
 const {
   createOfferValidation,
   updateOfferValidation,
-} = require("../../validations/dining/offer.validation");
+} = require("../../validations/dining/offerValidation");
 
 router.use(adminAuth);
-
 router
   .route("/offers")
   .get(OfferController.getAll)
   .post(createOfferValidation, validate, OfferController.create);
 
 router.get("/offers/active", OfferController.getActive);
-
 router
   .route("/offers/:id")
   .get(OfferController.getById)

@@ -1,11 +1,4 @@
 const Offer = require("../models/Offer");
-
-/**
- * Swiggy-style pricing calculation
- * @param {Object} item - menu item or combo
- * @param {String} type - "item" | "combo"
- */
-
 const getFinalPrice = async (item, type = "item") => {
   const now = new Date();
 
@@ -21,8 +14,6 @@ const getFinalPrice = async (item, type = "item") => {
   if (type === "combo") query.combos = item._id;
 
   const offer = await Offer.findOne(query).lean();
-
-  // NO OFFER
   if (!offer) {
     return {
       basePrice,
@@ -37,17 +28,14 @@ const getFinalPrice = async (item, type = "item") => {
 
   let discountAmount = 0;
 
-  // PERCENTAGE DISCOUNT
   if (offer.discountType === "PERCENTAGE") {
     discountAmount = Math.round((basePrice * offer.discountValue) / 100);
   }
 
-  // FLAT DISCOUNT
   if (offer.discountType === "FLAT") {
     discountAmount = offer.discountValue;
   }
 
-  // Prevent discount > price
   discountAmount = Math.min(discountAmount, basePrice);
 
   const finalPrice = Math.max(basePrice - discountAmount, 0);

@@ -1,5 +1,7 @@
 const DailyRoster = require("../../models/dining/DailyRoster");
 const Menu = require("../../models/dining/menuItemmodel");
+const Review = require("../../models/reviewModel");
+const mongoose = require("mongoose");
 
 exports.getMenuForUsers = async (req, res, next) => {
   try {
@@ -28,14 +30,14 @@ exports.getMenuForUsers = async (req, res, next) => {
     if (roster.length) {
       menu = roster.flatMap((r) =>
         r.items
-          .filter((item) => item.quantity > 0)
+          .filter((item) => item.quantity > 0 && item.id)
           .map((item) => ({
             _id: item.id._id,
             name: item.id.name,
             basePrice: item.id.basePrice,
             images: item.id.images,
             isVeg: item.id.isVeg,
-            isJain : item.id.isJain,  
+            isJain: item.id.isJain,
             description: item.id.description,
             preparationTime: item.id.preparationTime,
             spiceLevel: item.id.spiceLevel,
@@ -50,7 +52,7 @@ exports.getMenuForUsers = async (req, res, next) => {
       })
         .populate("category", "name")
         .select(
-          "name basePrice images isVeg description preparationTime spiceLevel category",
+          "name basePrice images isVeg isJain description preparationTime spiceLevel category",
         )
         .lean();
 
@@ -60,6 +62,7 @@ exports.getMenuForUsers = async (req, res, next) => {
         basePrice: item.basePrice,
         images: item.images,
         isVeg: item.isVeg,
+        isJain: item.isJain,
         description: item.description,
         preparationTime: item.preparationTime,
         spiceLevel: item.spiceLevel,
@@ -68,9 +71,49 @@ exports.getMenuForUsers = async (req, res, next) => {
       }));
     }
 
+    const menuIds = menu.map((m) => new mongoose.Types.ObjectId(m._id));
+
+    const ratings = await Review.aggregate([
+      {
+        $match: {
+          menuItem: { $ne: null },
+          rating: { $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: "$menuItem",
+          avgRating: { $avg: "$rating" },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const ratingMap = {};
+
+    ratings.forEach((r) => {
+      ratingMap[r._id.toString()] = {
+        avgRating: Number(r.avgRating.toFixed(1)),
+        totalReviews: r.totalReviews,
+      };
+    });
+
+    const finalMenu = menu.map((item) => {
+      const ratingData = ratingMap[item._id.toString()] || {
+        avgRating: 0,
+        totalReviews: 0,
+      };
+
+      return {
+        ...item,
+        rating: ratingData.avgRating,
+        reviewCount: ratingData.totalReviews,
+      };
+    });
+
     res.status(200).json({
       success: true,
-      data: menu,
+      data: finalMenu,
     });
   } catch (err) {
     next(err);
@@ -91,7 +134,7 @@ exports.getDailyRosterMenu = async (req, res, next) => {
       .populate({
         path: "items.id",
         select:
-          "name basePrice images isVeg description preparationTime spiceLevel category",
+          "name basePrice images isVeg isJain description preparationTime spiceLevel category",
         populate: {
           path: "category",
           select: "name",
@@ -108,13 +151,14 @@ exports.getDailyRosterMenu = async (req, res, next) => {
 
     const menu = roster.flatMap((r) =>
       r.items
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0 && item.id)
         .map((item) => ({
           _id: item.id._id,
           name: item.id.name,
           basePrice: item.id.basePrice,
           images: item.id.images,
           isVeg: item.id.isVeg,
+          isJain: item.id.isJain,
           description: item.id.description,
           preparationTime: item.id.preparationTime,
           spiceLevel: item.id.spiceLevel,

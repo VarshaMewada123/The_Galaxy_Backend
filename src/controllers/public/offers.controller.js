@@ -1,4 +1,4 @@
-const Combo = require("../../models/dining/combomodel");
+const Combo = require("../../models/dining/offer.model");
 const uploadToCloudinary = require("../../utils/cloudUpload");
 exports.getCombo = async (req, res) => {
   try {

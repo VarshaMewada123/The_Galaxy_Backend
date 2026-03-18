@@ -2,15 +2,27 @@ const Order = require("../../models/User/ordersModel");
 const MenuItem = require("../../models/dining/menuItemmodel");
 const DailyRoster = require("../../models/dining/DailyRoster");
 const Combo = require("../../models/dining/combomodel");
+const Review = require("../../models/reviewModel");
+
+const Address = require("../../models/User/address");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const { items, address } = req.body;
+    const { items, addressId } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({
         success: false,
         message: "No items provided",
+      });
+    }
+
+    const selectedAddress = await Address.findById(addressId);
+
+    if (!selectedAddress) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found",
       });
     }
 
@@ -62,70 +74,6 @@ exports.createOrder = async (req, res, next) => {
           quantity: item.quantity,
           total,
         });
-      } else if (item.combo) {
-        const combo = await Combo.findById(item.combo).populate("items.item");
-
-        if (!combo) {
-          return res.status(404).json({
-            success: false,
-            message: "Combo not found",
-          });
-        }
-
-        const price = combo.price;
-        const total = price * item.quantity;
-
-        subtotal += total;
-
-        for (const comboItem of combo.items) {
-          const requiredQty = comboItem.quantity * item.quantity;
-
-          const roster = await DailyRoster.findOne({
-            date: today,
-            "items.id": comboItem.item._id,
-          });
-
-          if (!roster) {
-            return res.status(400).json({
-              success: false,
-              message: "combo items are out of stock",
-            });
-          }
-
-          const rosterItem = roster.items.find(
-            (i) => i.id.toString() === comboItem.item._id.toString(),
-          );
-
-          if (!rosterItem || rosterItem.quantity < requiredQty) {
-            return res.status(400).json({
-              success: false,
-              message: "combo items are out of stock",
-            });
-          }
-        }
-
-        for (const comboItem of combo.items) {
-          const requiredQty = comboItem.quantity * item.quantity;
-
-          await DailyRoster.findOneAndUpdate(
-            {
-              date: today,
-              "items.id": comboItem.item._id,
-            },
-            {
-              $inc: { "items.$.quantity": -requiredQty },
-            },
-            { new: true },
-          );
-        }
-
-        orderItems.push({
-          combo: combo._id,
-          name: combo.name,
-          price,
-          quantity: item.quantity,
-          total,
-        });
       }
     }
 
@@ -141,9 +89,21 @@ exports.createOrder = async (req, res, next) => {
         tax,
         total,
       },
-      address,
+
+      address: {
+        street: selectedAddress.street,
+        landmark: selectedAddress.landmark,
+
+        lat: selectedAddress.lat,
+        lng: selectedAddress.lng,
+
+        location: selectedAddress.location,
+      },
+
       status: "pending",
     });
+
+    console.log("📦 Order Saved Address:", order.address);
 
     res.status(201).json({
       success: true,
@@ -153,22 +113,39 @@ exports.createOrder = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.getMyOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({ user: req.user.id })
       .populate("items.menuItem", "name basePrice images")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const orderIds = orders.map((o) => o._id);
+
+    const reviews = await Review.find({
+      order: { $in: orderIds },
+      user: req.user.id,
+    }).lean();
+
+    const reviewMap = {};
+
+    reviews.forEach((r) => {
+      reviewMap[r.order.toString()] = r;
+    });
+
+    const ordersWithReviews = orders.map((order) => ({
+      ...order,
+      review: reviewMap[order._id.toString()] || null,
+    }));
 
     res.status(200).json({
       success: true,
-      data: orders,
+      data: ordersWithReviews,
     });
   } catch (error) {
     next(error);
   }
 };
-
 exports.getOrderById = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id).populate(

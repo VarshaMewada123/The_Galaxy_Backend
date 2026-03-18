@@ -5,12 +5,8 @@ const Combo = require("../models/dining/combomodel");
 const uploadToCloudinary = require("../utils/cloudUpload");
 const cloudinary = require("../config/cloudinary");
 
-const { getFinalPrice } = require("../services/price.service");
+const { getFinalPrice } = require("../services/priceService");
 
-
-// ===============================
-// GET MENU ITEMS WITH OFFER
-// ===============================
 const getMenuItems = async (req, res) => {
   try {
     const items = await MenuItem.find().lean();
@@ -30,7 +26,6 @@ const getMenuItems = async (req, res) => {
       success: true,
       data: result,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -39,10 +34,6 @@ const getMenuItems = async (req, res) => {
   }
 };
 
-
-// ===============================
-// GET COMBOS WITH OFFER
-// ===============================
 const getCombos = async (req, res) => {
   try {
     const combos = await Combo.find().lean();
@@ -62,7 +53,6 @@ const getCombos = async (req, res) => {
       success: true,
       data: result,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -71,10 +61,6 @@ const getCombos = async (req, res) => {
   }
 };
 
-
-// ===============================
-// CREATE OFFER
-// ===============================
 const createOffer = async (req, res) => {
   try {
     let items = [];
@@ -109,7 +95,6 @@ const createOffer = async (req, res) => {
       success: true,
       data: offer,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -118,13 +103,8 @@ const createOffer = async (req, res) => {
   }
 };
 
-
-// ===============================
-// GET ALL OFFERS
-// ===============================
 const getOffers = async (req, res) => {
   try {
-
     const offers = await Offer.find()
       .populate("items")
       .populate("combos")
@@ -134,60 +114,47 @@ const getOffers = async (req, res) => {
     const result = [];
 
     for (const offer of offers) {
-
       const itemsWithPrice = [];
 
       for (const item of offer.items) {
-
         const priceData = await getFinalPrice(item, "item");
 
         itemsWithPrice.push({
           ...item,
-          ...priceData
+          ...priceData,
         });
-
       }
 
       const combosWithPrice = [];
 
       for (const combo of offer.combos) {
-
         const priceData = await getFinalPrice(combo, "combo");
 
         combosWithPrice.push({
           ...combo,
-          ...priceData
+          ...priceData,
         });
-
       }
 
       result.push({
         ...offer,
         items: itemsWithPrice,
-        combos: combosWithPrice
+        combos: combosWithPrice,
       });
-
     }
 
     res.json({
       success: true,
-      data: result
+      data: result,
     });
-
   } catch (error) {
-
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
-
   }
 };
 
-
-// ===============================
-// GET SINGLE OFFER
-// ===============================
 const getOfferById = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id)
@@ -206,7 +173,6 @@ const getOfferById = async (req, res) => {
       success: true,
       data: offer,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -215,10 +181,6 @@ const getOfferById = async (req, res) => {
   }
 };
 
-
-// ===============================
-// UPDATE OFFER
-// ===============================
 const updateOffer = async (req, res) => {
   try {
     const updateData = { ...req.body };
@@ -235,11 +197,9 @@ const updateOffer = async (req, res) => {
       };
     }
 
-    const offer = await Offer.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    )
+    const offer = await Offer.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    })
       .populate("items")
       .populate("combos")
       .lean();
@@ -248,7 +208,6 @@ const updateOffer = async (req, res) => {
       success: true,
       data: offer,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -257,10 +216,6 @@ const updateOffer = async (req, res) => {
   }
 };
 
-
-// ===============================
-// DELETE OFFER
-// ===============================
 const deleteOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
@@ -282,7 +237,6 @@ const deleteOffer = async (req, res) => {
       success: true,
       message: "Offer deleted successfully",
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -290,7 +244,6 @@ const deleteOffer = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   getMenuItems,

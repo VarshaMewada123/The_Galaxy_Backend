@@ -7,10 +7,9 @@ const MenuController = require("../../controllers/admin/menuController");
 const {
   createMenuValidation,
   updateMenuValidation,
-} = require("../../validations/dining/menu.validation");
+} = require("../../validations/dining/menuValidation");
 
 router.use(adminAuth);
-
 router
   .route("/menu")
   .get(MenuController.getAll)
@@ -20,11 +19,9 @@ router
     validate,
     MenuController.create,
   );
-
 router.patch("/menu/bulk", MenuController.bulkUpdate);
 router.patch("/menu/:id/availability", MenuController.toggleAvailability);
 router.patch("/menu/:id/restore", MenuController.restore);
-
 router
   .route("/menu/:id")
   .get(MenuController.getById)

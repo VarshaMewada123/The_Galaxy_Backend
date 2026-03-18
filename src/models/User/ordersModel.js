@@ -5,13 +5,11 @@ const orderItemSchema = new mongoose.Schema(
     menuItem: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MenuItem",
-      required: false,
     },
 
     combo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Combo",
-      required: false,
     },
 
     name: {
@@ -35,7 +33,44 @@ const orderItemSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { _id: false }
+  { _id: false },
+);
+
+const orderAddressSchema = new mongoose.Schema(
+  {
+    street: String,
+    landmark: String,
+    label: {
+      type: String,
+      enum: ["Home", "Work", "Other"],
+    },
+
+    lat: {
+      type: Number,
+      required: true,
+      index: true,
+    },
+
+    lng: {
+      type: Number,
+      required: true,
+      index: true,
+    },
+
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+        index: "2dsphere",
+      },
+    },
+  },
+  { _id: false },
 );
 
 const orderSchema = new mongoose.Schema(
@@ -70,12 +105,15 @@ const orderSchema = new mongoose.Schema(
     },
 
     address: {
-      fullName: String,
-      phone: String,
-      street: String,
-      city: String,
-      state: String,
-      pincode: String,
+      type: orderAddressSchema,
+      required: true,
+    },
+
+    rider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Rider",
+      default: null,
+      index: true,
     },
 
     status: {
@@ -84,6 +122,7 @@ const orderSchema = new mongoose.Schema(
         "pending",
         "confirmed",
         "preparing",
+        "READY",
         "out_for_delivery",
         "delivered",
         "cancelled",
@@ -97,8 +136,10 @@ const orderSchema = new mongoose.Schema(
       lng: Number,
     },
   },
-
-  { timestamps: true }
+  { timestamps: true },
 );
+
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ status: 1 });
 
 module.exports = mongoose.model("Orders", orderSchema);
