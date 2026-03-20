@@ -2,257 +2,226 @@ const Order = require("../../models/User/ordersModel");
 const MenuItem = require("../../models/dining/menuItemmodel");
 
 const VALID_ORDER_FILTER = {
-  status: { $ne: "cancelled" }
+  status: { $ne: "cancelled" },
 };
 
-/* ===============================
-   DASHBOARD STATS
-================================ */
 
 exports.getDashboardStats = async (req, res, next) => {
   try {
-
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
     const week = new Date();
     week.setDate(week.getDate() - 7);
 
     const month = new Date();
     month.setDate(1);
-    month.setHours(0,0,0,0);
+    month.setHours(0, 0, 0, 0);
 
     const totalOrders = await Order.countDocuments(VALID_ORDER_FILTER);
 
     const todayOrders = await Order.countDocuments({
       ...VALID_ORDER_FILTER,
-      createdAt: { $gte: today }
+      createdAt: { $gte: today },
     });
 
     const weeklyOrders = await Order.countDocuments({
       ...VALID_ORDER_FILTER,
-      createdAt: { $gte: week }
+      createdAt: { $gte: week },
     });
 
     const monthlyOrders = await Order.countDocuments({
       ...VALID_ORDER_FILTER,
-      createdAt: { $gte: month }
+      createdAt: { $gte: month },
     });
 
     const revenue = await Order.aggregate([
       { $match: VALID_ORDER_FILTER },
       {
-        $group:{
-          _id:null,
-          totalRevenue:{ $sum:"$pricing.total" }
-        }
-      }
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$pricing.total" },
+        },
+      },
     ]);
 
     res.json({
-      success:true,
-      data:{
+      success: true,
+      data: {
         totalOrders,
         todayOrders,
         weeklyOrders,
         monthlyOrders,
-        totalRevenue: revenue[0]?.totalRevenue || 0
-      }
+        totalRevenue: revenue[0]?.totalRevenue || 0,
+      },
     });
-
-  } catch(err){
+  } catch (err) {
     next(err);
   }
 };
 
 
 
-/* ===============================
-   CATEGORY SALES
-================================ */
+exports.getCategorySales = async (req, res, next) => {
+  try {
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-exports.getCategorySales = async (req,res,next)=>{
-try{
+    const data = await Order.aggregate([
+      {
+        $match: {
+          ...VALID_ORDER_FILTER,
+          createdAt: { $gte: monthStart },
+        },
+      },
 
-const monthStart = new Date();
-monthStart.setDate(1);
-monthStart.setHours(0,0,0,0);
+      { $unwind: "$items" },
 
-const data = await Order.aggregate([
+      {
+        $lookup: {
+          from: "menuitems",
+          localField: "items.menuItem",
+          foreignField: "_id",
+          as: "menu",
+        },
+      },
 
-{ 
-  $match:{ 
-    ...VALID_ORDER_FILTER,
-    createdAt:{ $gte:monthStart } 
-  } 
-},
+      { $unwind: "$menu" },
 
-{ $unwind:"$items" },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "menu.category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
 
-{
-$lookup:{
-from:"menuitems",
-localField:"items.menuItem",
-foreignField:"_id",
-as:"menu"
-}
-},
+      { $unwind: "$category" },
 
-{ $unwind:"$menu" },
+      {
+        $group: {
+          _id: "$category.name",
+          totalSales: { $sum: "$items.total" },
+          quantity: { $sum: "$items.quantity" },
+        },
+      },
 
-{
-$lookup:{
-from:"categories",
-localField:"menu.category",
-foreignField:"_id",
-as:"category"
-}
-},
+      {
+        $project: {
+          category: "$_id",
+          totalSales: 1,
+          quantity: 1,
+          _id: 0,
+        },
+      },
 
-{ $unwind:"$category" },
+      { $sort: { totalSales: -1 } },
+    ]);
 
-{
-$group:{
-_id:"$category.name",
-totalSales:{ $sum:"$items.total" },
-quantity:{ $sum:"$items.quantity" }
-}
-},
-
-{
-$project:{
-category:"$_id",
-totalSales:1,
-quantity:1,
-_id:0
-}
-},
-
-{ $sort:{ totalSales:-1 } }
-
-]);
-
-res.json({
-success:true,
-data
-});
-
-}catch(err){
-next(err);
-}
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
-
-
 
 /* ===============================
    TOP SELLING DISHES
 ================================ */
 
-exports.getTopDishes = async (req,res,next)=>{
-try{
+exports.getTopDishes = async (req, res, next) => {
+  try {
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-const monthStart = new Date();
-monthStart.setDate(1);
-monthStart.setHours(0,0,0,0);
+    const data = await Order.aggregate([
+      {
+        $match: {
+          ...VALID_ORDER_FILTER,
+          createdAt: { $gte: monthStart },
+        },
+      },
 
-const data = await Order.aggregate([
+      { $unwind: "$items" },
 
-{ 
-  $match:{ 
-    ...VALID_ORDER_FILTER,
-    createdAt:{ $gte:monthStart } 
-  } 
-},
+      {
+        $group: {
+          _id: "$items.name",
+          totalSales: { $sum: "$items.total" },
+          quantity: { $sum: "$items.quantity" },
+        },
+      },
 
-{ $unwind:"$items" },
+      {
+        $project: {
+          dish: "$_id",
+          totalSales: 1,
+          quantity: 1,
+          _id: 0,
+        },
+      },
 
-{
-$group:{
-_id:"$items.name",
-totalSales:{ $sum:"$items.total" },
-quantity:{ $sum:"$items.quantity" }
-}
-},
+      { $sort: { quantity: -1 } },
 
-{
-$project:{
-dish:"$_id",
-totalSales:1,
-quantity:1,
-_id:0
-}
-},
+      { $limit: 10 },
+    ]);
 
-{ $sort:{ quantity:-1 } },
-
-{ $limit:10 }
-
-]);
-
-res.json({
-success:true,
-data
-});
-
-}catch(err){
-next(err);
-}
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
-
-
 
 /* ===============================
    ORDERS BY LANDMARK
 ================================ */
 
-exports.getOrdersByLandmark = async (req,res,next)=>{
-try{
+exports.getOrdersByLandmark = async (req, res, next) => {
+  try {
+    const data = await Order.aggregate([
+      {
+        $match: {
+          ...VALID_ORDER_FILTER,
+          "address.street": { $ne: null },
+        },
+      },
 
-const data = await Order.aggregate([
+      {
+        $group: {
+          _id: "$address.street",
+          orders: { $sum: 1 },
+          revenue: { $sum: "$pricing.total" },
+        },
+      },
 
-{
-$match:{
-...VALID_ORDER_FILTER,
-"address.street":{ $ne:null }
-}
-},
+      {
+        $project: {
+          landmark: "$_id",
+          orders: 1,
+          revenue: 1,
+          _id: 0,
+        },
+      },
 
-{
-$group:{
-_id:"$address.street",
-orders:{ $sum:1 },
-revenue:{ $sum:"$pricing.total" }
-}
-},
+      { $sort: { orders: -1 } },
+    ]);
 
-{
-$project:{
-landmark:"$_id",
-orders:1,
-revenue:1,
-_id:0
-}
-},
-
-{ $sort:{ orders:-1 } }
-
-]);
-
-res.json({
-success:true,
-data
-});
-
-}catch(err){
-next(err);
-}
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
-
-
-
-/* ===============================
-   MOST SELLING ITEM
-================================ */
 
 exports.getMostSellingItem = async (req,res,next)=>{
 try{
