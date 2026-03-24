@@ -15,8 +15,6 @@ exports.createOrder = async (req, res, next) => {
         message: "No items provided",
       });
     }
-
-    // ✅ FETCH ADDRESS
     const selectedAddress = await Address.findById(addressId);
 
     if (!selectedAddress) {

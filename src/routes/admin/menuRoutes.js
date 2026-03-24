@@ -3,7 +3,10 @@ const router = express.Router();
 const adminAuth = require("../../middleware/adminAuth");
 const validate = require("../../middleware/validate");
 const upload = require("../../middleware/upload");
+
 const MenuController = require("../../controllers/admin/menuController");
+
+console.log("LOADED FILE:", require.resolve("../../controllers/admin/menuController"));
 const {
   createMenuValidation,
   updateMenuValidation,

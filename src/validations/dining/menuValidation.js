@@ -1,33 +1,46 @@
 const { body, param } = require("express-validator");
 
 exports.createMenuValidation = [
-  body("name").notEmpty().withMessage("Menu name is required"),
-
-  body("category")
+  body("name")
     .notEmpty()
-    .withMessage("Category is required")
+    .withMessage("Menu name is required"),
+
+  body("subCategory")
+    .notEmpty()
+    .withMessage("SubCategory is required")
     .isMongoId()
-    .withMessage("Invalid category ID"),
+    .withMessage("Invalid subCategory ID"),
 
   body("basePrice")
     .notEmpty()
     .withMessage("Base price is required")
     .isFloat({ min: 0 })
-    .withMessage("Price must be positive"),
+    .toFloat(),
 
   body("taxPercent")
     .optional()
     .isFloat({ min: 0 })
-    .withMessage("Tax must be positive"),
+    .toFloat(),
 
-  body("isVeg").optional().isBoolean().withMessage("isVeg must be boolean"),
+  body("isVeg")
+    .optional()
+    .toBoolean(),
+
+  body("isJain")
+    .optional()
+    .toBoolean(),
 
   body("preparationTime")
     .optional()
     .isInt({ min: 1 })
-    .withMessage("Preparation time must be at least 1 minute"),
+    .toInt(),
 ];
 
 exports.updateMenuValidation = [
-  param("id").isMongoId().withMessage("Invalid menu ID"),
+  param("id").isMongoId().withMessage("Invalid ID"),
+
+  body("name").optional().notEmpty(),
+  body("basePrice").optional().isFloat({ min: 0 }).toFloat(),
+  body("isVeg").optional().toBoolean(),
+  body("preparationTime").optional().isInt({ min: 1 }).toInt(),
 ];

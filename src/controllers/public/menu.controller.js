@@ -14,13 +14,18 @@ exports.getMenuForUsers = async (req, res, next) => {
     const roster = await DailyRoster.find({
       date: { $gte: start, $lte: end },
     })
+
       .populate({
         path: "items.id",
         select:
-          "name basePrice images isVeg isJain description preparationTime spiceLevel category",
+          "name basePrice images isVeg isJain description preparationTime spiceLevel subCategory",
         populate: {
-          path: "category",
-          select: "name",
+          path: "subCategory",
+          select: "name category",
+          populate: {
+            path: "category",
+            select: "name",
+          },
         },
       })
       .lean();
