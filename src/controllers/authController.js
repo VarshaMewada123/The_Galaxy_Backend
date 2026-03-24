@@ -79,6 +79,7 @@ exports.sendOtp = async (req, res) => {
     await user.save();
 
     sendOTP(phone, otp).catch((err) =>
+
       console.error("SMS ERROR:", err.message),
     );
 

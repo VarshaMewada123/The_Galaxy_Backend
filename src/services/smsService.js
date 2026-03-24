@@ -20,6 +20,8 @@ exports.sendOTP = async (phone, otp) => {
 
     console.log("✅ SMS Sent SID:", message.sid);
   } catch (err) {
+    console.error("❌ Twilio Error Details:", err);
+    console.error("❌ Twilio Error Code:", err.code);
     console.error("❌ Twilio Error:", err.message);
     throw err;
   }
