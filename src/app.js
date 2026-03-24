@@ -31,6 +31,8 @@ const offerRoutepublic = require("./routes/public/offers.routes");
 const dashboardRoutes = require("./routes/admin/dashboardRoutes");
 const riderRoutes = require("./routes/admin/rider.routes");
 const staffRoutes = require("./routes/admin/staffRoutes");
+const roomRoutes = require("./routes/roomRoutes");
+const path = require("path");
 const router = require("express").Router();
 const app = express();
 
@@ -68,6 +70,10 @@ app.use(
     credentials: true,
   }),
 );
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "public/uploads"))
+);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
@@ -92,6 +98,9 @@ app.use("/api/v1/admin/dashboard", dashboardRoutes);
 app.use("/api/v1/admin/riders", riderRoutes);
 app.use("/api/v1/admin/staff", staffRoutes);
 app.use("/api/v1/payment", require("./routes/paymentRoutes"));
+app.use("/api/rooms", roomRoutes);
+
+
 
 app.use("/api/v1/admin/availability", require("./routes/admin/availabilityRoutes"));
 app.use("/api/geocode", require("./routes/geocodeRoutes"));
@@ -100,3 +109,6 @@ app.use(notFound);
 app.use(errorHandler);
 
 module.exports = app;
+
+
+
