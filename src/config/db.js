@@ -14,18 +14,9 @@ const connectDB = async () => {
   mongoose.set("strictQuery", true);
 
   try {
-    await mongoose.connect(mongoURI, {
-      autoIndex: process.env.NODE_ENV !== "production",
-      maxPoolSize: 20,
-      minPoolSize: 5,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      family: 4,
-    });
-
-    console.log("✅ MongoDB connected");
-
-    retryCount = 0;
+    await mongoose
+      .connect(mongoURI)
+      .then(() => console.log("✅ MongoDB connected"));
   } catch (err) {
     retryCount += 1;
     console.error(`❌ MongoDB connection failed (attempt ${retryCount})`);

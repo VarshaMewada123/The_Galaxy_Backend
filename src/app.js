@@ -25,10 +25,15 @@ const addressRoutes = require("./routes/addressRoutes");
 const newsletterRoutes = require("./routes/newsletterRoutes");
 const combsRoutes = require("./routes/admin/comboRoutes");
 const adminOrderRoutes = require("./routes/admin/adminOrderRoutes");
-const enquiryRoutes =require("./routes/enquiryRoutes")
-const reviewRoutes =require("./routes/reviewRoutes")
+const enquiryRoutes = require("./routes/enquiryRoutes")
+const reviewRoutes = require("./routes/reviewRoutes")
 const combsRoute = require("./routes/public/combo.routes");
 const offerRoute = require("./routes/offer.routes");
+
+const whatsappRoutes = require("./routes/whatsappRoutes");
+const chatRoutes = require("./routes/chatRoutes")
+
+
 const router = require("express").Router();
 
 const app = express();
@@ -53,6 +58,7 @@ if (process.env.NODE_ENV === "development") {
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3002",
+  "http://localhost:5173",
   process.env.CLIENT_URL,
 ];
 
@@ -91,6 +97,12 @@ app.use("/api/v1/enquiries", enquiryRoutes);
 app.use("/api/v1/reviews",reviewRoutes);
 app.use("/api/v1/dining", combsRoute);
 app.use("/api/v1/admin/dining", offerRoute);
+
+
+app.use("/webhook", whatsappRoutes);
+app.use("/api",chatRoutes);
+
+
 app.use(notFound);
 app.use(errorHandler);
 
