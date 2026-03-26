@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-
 const adminAuth = require("../../middleware/adminAuth");
 const validate = require("../../middleware/validate");
 const upload = require("../../middleware/upload");
@@ -11,7 +10,6 @@ const {
 } = require("../../validations/dining/categoryValidation");
 
 router.use(adminAuth);
-
 router
   .route("/categories")
   .get(DiningCategoryController.getAll)
@@ -21,7 +19,6 @@ router
     validate,
     DiningCategoryController.create,
   );
-
 router
   .route("/categories/:id")
   .get(DiningCategoryController.getById)

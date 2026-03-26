@@ -2,27 +2,23 @@ const Offer = require("../models/Offer");
 const MenuItem = require("../models/dining/menuItemmodel");
 const Combo = require("../models/dining/combomodel");
 
+const uploadToCloudinary = require("../utils/cloudUpload");
 const cloudinary = require("../config/cloudinary");
 
-const { getFinalPrice } = require("../services/price.service");
-const uploadToCloudinary = require("../utils/cloudUpload");
+const { getFinalPrice } = require("../services/priceService");
 
-
-// ===============================
-// GET MENU ITEMS WITH OFFER
-// ===============================
 const getMenuItems = async (req, res) => {
   try {
-    const items = await MenuItem.find();
+    const items = await MenuItem.find().lean();
 
     const result = [];
 
-    for (let item of items) {
-      const finalPrice = await getFinalPrice(item);
+    for (const item of items) {
+      const priceData = await getFinalPrice(item, "item");
 
       result.push({
-        ...item.toObject(),
-        finalPrice,
+        ...item,
+        ...priceData,
       });
     }
 
@@ -38,22 +34,18 @@ const getMenuItems = async (req, res) => {
   }
 };
 
-
-// ===============================
-// GET COMBOS WITH OFFER
-// ===============================
 const getCombos = async (req, res) => {
   try {
-    const combos = await Combo.find();
+    const combos = await Combo.find().lean();
 
     const result = [];
 
-    for (let combo of combos) {
-      const finalPrice = await getFinalPrice(combo);
+    for (const combo of combos) {
+      const priceData = await getFinalPrice(combo, "combo");
 
       result.push({
-        ...combo.toObject(),
-        finalPrice,
+        ...combo,
+        ...priceData,
       });
     }
 
@@ -69,12 +61,14 @@ const getCombos = async (req, res) => {
   }
 };
 
-
-// ===============================
-// CREATE OFFER
-// ===============================
 const createOffer = async (req, res) => {
   try {
+    let items = [];
+    let combos = [];
+
+    if (req.body.items) items = JSON.parse(req.body.items);
+    if (req.body.combos) combos = JSON.parse(req.body.combos);
+
     let imageData = {};
 
     if (req.file) {
@@ -87,7 +81,13 @@ const createOffer = async (req, res) => {
     }
 
     const offer = await Offer.create({
-      ...req.body,
+      name: req.body.name,
+      discountType: req.body.discountType,
+      discountValue: req.body.discountValue,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      items,
+      combos,
       image: imageData,
     });
 
@@ -103,20 +103,49 @@ const createOffer = async (req, res) => {
   }
 };
 
-
-// ===============================
-// GET ALL OFFERS
-// ===============================
 const getOffers = async (req, res) => {
   try {
     const offers = await Offer.find()
       .populate("items")
       .populate("combos")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const result = [];
+
+    for (const offer of offers) {
+      const itemsWithPrice = [];
+
+      for (const item of offer.items) {
+        const priceData = await getFinalPrice(item, "item");
+
+        itemsWithPrice.push({
+          ...item,
+          ...priceData,
+        });
+      }
+
+      const combosWithPrice = [];
+
+      for (const combo of offer.combos) {
+        const priceData = await getFinalPrice(combo, "combo");
+
+        combosWithPrice.push({
+          ...combo,
+          ...priceData,
+        });
+      }
+
+      result.push({
+        ...offer,
+        items: itemsWithPrice,
+        combos: combosWithPrice,
+      });
+    }
 
     res.json({
       success: true,
-      data: offers,
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
@@ -126,15 +155,12 @@ const getOffers = async (req, res) => {
   }
 };
 
-
-// ===============================
-// GET SINGLE OFFER
-// ===============================
 const getOfferById = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id)
       .populate("items")
-      .populate("combos");
+      .populate("combos")
+      .lean();
 
     if (!offer) {
       return res.status(404).json({
@@ -155,45 +181,32 @@ const getOfferById = async (req, res) => {
   }
 };
 
-
-// ===============================
-// UPDATE OFFER
-// ===============================
 const updateOffer = async (req, res) => {
   try {
-    const offer = await Offer.findById(req.params.id);
+    const updateData = { ...req.body };
 
-    if (!offer) {
-      return res.status(404).json({
-        success: false,
-        message: "Offer not found",
-      });
-    }
+    if (req.body.items) updateData.items = JSON.parse(req.body.items);
+    if (req.body.combos) updateData.combos = JSON.parse(req.body.combos);
 
-    // If new image uploaded
     if (req.file) {
-      // delete old image
-      if (offer.image?.public_id) {
-        await cloudinary.uploader.destroy(offer.image.public_id);
-      }
-
       const uploaded = await uploadToCloudinary(req.file.buffer, "offers");
 
-      req.body.image = {
+      updateData.image = {
         url: uploaded.secure_url,
         public_id: uploaded.public_id,
       };
     }
 
-    const updatedOffer = await Offer.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const offer = await Offer.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    })
+      .populate("items")
+      .populate("combos")
+      .lean();
 
     res.json({
       success: true,
-      data: updatedOffer,
+      data: offer,
     });
   } catch (error) {
     res.status(500).json({
@@ -203,10 +216,6 @@ const updateOffer = async (req, res) => {
   }
 };
 
-
-// ===============================
-// DELETE OFFER
-// ===============================
 const deleteOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
@@ -218,7 +227,6 @@ const deleteOffer = async (req, res) => {
       });
     }
 
-    // delete image from cloudinary
     if (offer.image?.public_id) {
       await cloudinary.uploader.destroy(offer.image.public_id);
     }
@@ -237,8 +245,6 @@ const deleteOffer = async (req, res) => {
   }
 };
 
-
-// ===============================
 module.exports = {
   getMenuItems,
   getCombos,

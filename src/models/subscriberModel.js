@@ -20,7 +20,7 @@ const subscriberSchema = new mongoose.Schema(
       default: "homepage",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Subscriber", subscriberSchema);

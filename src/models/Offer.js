@@ -32,7 +32,6 @@ const offerSchema = new mongoose.Schema(
       },
     ],
 
-    // ✅ IMAGE FIELD
     image: {
       url: {
         type: String,
@@ -59,7 +58,10 @@ const offerSchema = new mongoose.Schema(
       default: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("OfferDining", offerSchema);
+// 🔥 MAIN FIX (IMPORTANT)
+module.exports =
+  mongoose.models.OfferDining ||
+  mongoose.model("OfferDining", offerSchema);

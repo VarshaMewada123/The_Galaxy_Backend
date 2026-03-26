@@ -9,7 +9,32 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 });
+exports.sendPasswordResetMail = async ({ email, name, resetURL }) => {
+  const content = `
+    <h2 style="color:#1a202c;">Password Reset Request</h2>
+    <p>Hello <strong>${name || "Admin"}</strong>,</p>
+    <p>We received a request to reset your password.</p>
 
+    <div style="text-align:center; margin:30px 0;">
+      <a href="${resetURL}" 
+         style="display:inline-block; padding:12px 24px; background:#C6A45C; color:#fff; border-radius:6px; text-decoration:none;">
+        Reset Password
+      </a>
+    </div>
+
+    <p>This link will expire in <strong>10 minutes</strong>.</p>
+    <p>If you did not request this, please ignore this email.</p>
+
+    <p>— Hotel Galaxy Team</p>
+  `;
+
+  await transporter.sendMail({
+    from: `"Hotel Galaxy Security" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Reset Your Password",
+    html: emailWrapper(content),
+  });
+};
 const emailWrapper = (content) => `
   <div style="background-color: #f4f4f7; padding: 20px 10px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
     <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">

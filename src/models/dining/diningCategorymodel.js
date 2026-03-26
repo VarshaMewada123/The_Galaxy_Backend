@@ -15,23 +15,56 @@ const diningCategorySchema = new mongoose.Schema(
       lowercase: true,
       index: true,
     },
-    description: { type: String, maxlength: 500 },
+    description: {
+      type: String,
+      maxlength: 500,
+      default: "",
+    },
     image: {
       url: { type: String, default: "" },
       public_id: { type: String, default: "" },
     },
-    isActive: { type: Boolean, default: true, index: true },
-    sortOrder: { type: Number, default: 0, index: true },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    sortOrder: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
-diningCategorySchema.pre("save", async function () {
-  if (this.isModified("name")) {
-    this.slug = slugify(this.name, { lower: true, strict: true });
-  }
+diningCategorySchema.virtual("subCategories", {
+  ref: "SubCategory",
+  localField: "_id",
+  foreignField: "category",
 });
 
 diningCategorySchema.index({ sortOrder: 1, createdAt: -1 });
+
+diningCategorySchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.__v;
+  delete obj.isDeleted;
+  delete obj.deletedAt;
+  return obj;
+};
 
 module.exports = mongoose.model("DiningCategory", diningCategorySchema);
